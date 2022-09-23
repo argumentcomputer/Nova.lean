@@ -15,17 +15,29 @@ instance : Monad Polynomial where
 instance : Append (Polynomial A) where
   append := Array.append
 
-variable {A : Type} [Add A] [Mul A] [HPow A Nat A] [OfNat A 0] [Inhabited A] [BEq A]
+variable {A : Type} [Add A] [Mul A] [HPow A Nat A] [OfNat A 1] [ofnat : OfNat A 0] 
+                    [hab : Inhabited A] [eq : BEq A] [Div A] [Neg A]
 
 def dropWhile (p : A → Bool) (f : Polynomial A) : Polynomial A :=
   match f with
     | { data := xs } => Array.mk $ List.dropWhile p xs
 
 def norm (f : Polynomial A) : Polynomial A :=
-  dropWhile (fun (x : A) => x == 0) f
+  Array.reverse $ dropWhile (fun (x : A) => x == 0) (Array.reverse f)
 
 def degree (f : Polynomial A) : Nat :=
   Array.size (norm f) - 1
+
+def isZero (f : Polynomial A) : Bool :=
+  if f.size == 1 && f[0] == 0 then true else false
+
+def isMonic (f : Polynomial A) : Bool :=
+  let f' := norm f
+  if f'[f'.size-1] == 1 then true else false
+
+def lead (f : Polynomial A) : A :=
+  let f' := norm f
+  f'[f'.size-1] 
 
 def mulByConst (a : A) (f : Polynomial A) : Polynomial A :=
   Array.map (fun x => x * a) f
@@ -55,9 +67,12 @@ def polAdd (f : Polynomial A) (g : Polynomial A) : Polynomial A :=
     then action f (shift g (f.size - g.size))
     else action f g
 
+def polySub (f : Polynomial A) (g : Polynomial A) : Polynomial A :=
+  polAdd f (Array.map Neg.neg g)
+
 def polMul (f : Polynomial A) (g : Polynomial A) : Polynomial A := do
-  let fx <- f;
-  let gx <- g;
+  let fx <- f
+  let gx <- g
   return fx * gx 
 
 instance : Add (Polynomial A) where
@@ -65,5 +80,25 @@ instance : Add (Polynomial A) where
 
 instance : Mul (Polynomial A) where
   mul := polMul
+
+instance : Sub (Polynomial A) where
+  sub := polySub
+
+/-
+def polDiv (f : Polynomial A) (g : Polynomial A) 
+    {p₁ : f.size > 0} {p₂ : isZero (norm g) == false} : 
+    Polynomial A × Polynomial A :=
+  let f' := norm f
+  let g' := norm g
+  let rec helper (x : Polynomial A) (y : Polynomial A) : Polynomial A × Polynomial A :=
+    if isZero x && degree x <= degree y 
+    then (x, y)
+    else
+      let t := pure $ (lead x / lead y : A) 
+      let y' := y ++ t
+      let x' := x - t * y
+      helper x' y'
+  helper f' g'
+-/
 
 end Polynomial
