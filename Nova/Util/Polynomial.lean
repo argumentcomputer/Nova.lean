@@ -38,8 +38,8 @@ instance : HMul A (Polynomial A) (Polynomial A) where
 def eval (f : Polynomial A) (a : A) : A :=
   let action (i : Fin f.size) _ :=
     match (i : Nat) with
-      | 0 => f[0] ^ f.size
-      | (Nat.succ _) => a ^ (f.size - i : Nat) * f[i]
+      | 0 => f[0] * a ^ (degree f)
+      | (Nat.succ _) => f[i] * a ^ (degree f - i : Nat)
   Array.foldr (. + .) 0 (Array.mapIdx f action)
 
 def zeros (n : Nat) : Polynomial A := mkArray n 0
