@@ -1,5 +1,3 @@
-import Std.Data.HashMap
-
 namespace Polynomial
 
 def Polynomial R := Array R
@@ -26,11 +24,11 @@ def degree (f : Polynomial A) : Nat :=
   Array.size (norm f) - 1
 
 def isZero (f : Polynomial A) : Bool :=
-  if f.size == 1 && f[0] == 0 then true else false
+  if f.size == 1 && Array.getD f 0 0 == 0 then true else false
 
 def isMonic (f : Polynomial A) : Bool :=
   let f' := norm f
-  if f'[0] == 1 then true else false
+  if Array.getD f' 0 0 == 1 then true else false
 
 def lead (f : Polynomial A) : A := Array.getD f 0 0
 
@@ -43,8 +41,8 @@ instance : HMul A (Polynomial A) (Polynomial A) where
 def eval (f : Polynomial A) (a : A) : A :=
   let action (i : Fin f.size) _ :=
     match (i : Nat) with
-      | 0 => f[0] * a ^ (degree f)
-      | (Nat.succ _) => f[i] * a ^ (degree f - i : Nat)
+      | 0 => (Array.getD f 0 0) * a ^ (degree f)
+      | (Nat.succ _) => (Array.getD f i 0) * a ^ (degree f - i : Nat)
   Array.foldr (. + .) 0 (Array.mapIdx f action)
 
 def zeros (n : Nat) : Polynomial A := mkArray n 0
@@ -97,12 +95,19 @@ def polyMod (f : Polynomial A) (g : Polynomial A) : Polynomial A :=
     match n with
       | 0 => Array.empty
       | k + 1 =>
-        if k + 1 < g'.size then Array.empty
+        if k + 1 < g'.size then f'
         else
           let x := Array.getD f' 0 0
           let y := Array.getD g' 0 0
           let z := x / y
           polyMod' (tail (polySub f' (polyMul #[z] g'))) g' k 
   Array.reverse $ polyMod' (Array.reverse f) (Array.reverse g) (f.size)
+
+def rootsToPoly (a : List A) : Polynomial A :=
+  match a with
+    | [] => #[1]
+    | (root :: roots) => 
+      let monom : Polynomial A := #[root,-1]
+      monom * (rootsToPoly roots)
 
 end Polynomial
