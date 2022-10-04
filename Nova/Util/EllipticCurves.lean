@@ -97,7 +97,7 @@ instance prEq [OfNat Q 0] [BEq Q] : BEq (ProjectivePoint Weierstrass Projective 
       | (.P x y z, .P x' y' z') =>
       z == 0 && z' == 0 || x * z' == x' * z && y * z' == y' * z
 
-instance [OfNat Q 0] [OfNat Q 1] [inst₁ : Curve Weierstrass Projective E Q R] 
+instance [OfNat Q 0] [OfNat Q 1] [OfNat Q 2] [inst₁ : Curve Weierstrass Projective E Q R] 
          [inst₂ : WCurve Projective E Q R] 
          [BEq Q] : Curve Weierstrass Projective E Q R where
   Point := ProjectivePoint Weierstrass Projective E Q R
@@ -115,5 +115,31 @@ instance [OfNat Q 0] [OfNat Q 1] [inst₁ : Curve Weierstrass Projective E Q R]
   inv p :=
     match p with
       | .P x y z => .P x (-y) z
+  add p₁ p₂ :=
+    match (p₁, p₂) with
+      | (.P x₁ y₁ z₁, .P x₂ y₂ z₂) =>
+        if z₂ == 0 then p₁
+        else if z₁ == 0 then p₂
+        else
+          let y₁z₂ : Q := y₁ * z₂
+          let x₁z₂ : Q := x₁ * z₂
+          let z₁z₂ : Q := z₁ * z₂
+          let u : Q := (y₂ * z₁) - y₁z₂
+          let uu : Q := u * u
+          let v : Q := (x₂ * z₁) - x₁z₂
+          let vv := v * v
+          let vvv := v * vv
+          let r := vv * x₁z₂
+          let a := ((uu * x₁z₂) - vvv) - (2 * r)
+          let x₃ := v * a
+          let y₃ := (u * (r - a)) - (vvv * y₁z₂)
+          let z₃ := vvv * z₁z₂
+          (.P x₃ y₃ z₃)
+  disc := sorry
+  frob p :=
+    match p with
+      | .P x y z => .P (galq.frob x) (galq.frob y) (galq.frob z)
+
+
 
 end EllipticCurves
