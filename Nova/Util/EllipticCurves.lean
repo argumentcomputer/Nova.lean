@@ -20,11 +20,6 @@ class Curve (f : Form) (c : Coordinate)
       [Add Q] [Mul Q] [Sub Q] [Div Q] [GaloisField Q] 
       [Add R] [Mul R] [Sub R] [Div R] [GaloisField R] [PrimeField R] where
   Point : Type
-  eqP : BEq Point
-  addInst : Add Point
-  neqInst : Neg Point
-  one : OfNat Point 1
-  z : OfNat Point 0
   char : Point → Nat
   cof : Point → Nat
   isWellDefined : Point → Bool
@@ -36,7 +31,7 @@ class Curve (f : Form) (c : Coordinate)
   inv : Point → Point
   frob : Point → Point
   gen : Point
-  point : Q → Q → Point
+  point : Q → Q → Option Point
   pointX : Q → Option Point
   yx : Point → Q → Option Q
 
@@ -44,7 +39,8 @@ open Curve
 
 variable {Q R : Type _} 
   [addq : Add Q] [mulq : Mul Q] [div : Div Q] 
-  [subq : Sub Q] [galq : GaloisField Q] [Neg Q]
+  [subq : Sub Q] [galq : GaloisField Q] 
+  [Neg Q] [OfNat Q 4] [OfNat Q 27] [OfNat Q 0] [OfNat Q 1] [OfNat Q 2] [OfNat Q 3]
   [addr : Add R] [mulr : Mul R] [divr : Div R] 
   [subr : Sub R] [galr : GaloisField R] [prr : PrimeField R]
 
@@ -72,22 +68,6 @@ def mul' [Curve f c E Q R] (p : Point f c E Q R) (n : Int) : Point f c E Q R :=
 
 open Form Coordinate
 
-class WCurve (c : Coordinate) (E : Type _) (Q : Type _) (R : Type _) 
-      [Add Q] [Mul Q] [Sub Q] [Div Q] [GaloisField Q] 
-      [Add R] [Mul R] [Sub R] [Div R] [GaloisField R] [PrimeField R]
-      [Curve Weierstrass c E Q R] where
-  a_ : Point Weierstrass c E Q R → Q
-  b_ : Point Weierstrass c E Q R → Q
-  h_ : Point Weierstrass c E Q R → Nat
-  q_ : Point Weierstrass c E Q R → Nat
-  r_ : Point Weierstrass c E Q R → Nat
-
-class WPCurve (c : Coordinate) (E : Type _) (Q : Type _) (R : Type _) 
-      [Add Q] [Mul Q] [Sub Q] [Div Q] [GaloisField Q] 
-      [Add R] [Mul R] [Sub R] [Div R] [GaloisField R] [PrimeField R]
-      [Curve Weierstrass Projective E Q R] [WCurve Projective E Q R] where
-  gP : Point Weierstrass Projective E Q R
-
 inductive ProjectivePoint (f : Form) (p : Coordinate) (E : Type _) (Q : Type _) (R : Type _) where
   | P : Q → Q → Q → ProjectivePoint f p E Q R
 
@@ -97,24 +77,28 @@ instance prEq [OfNat Q 0] [BEq Q] : BEq (ProjectivePoint Weierstrass Projective 
       | (.P x y z, .P x' y' z') =>
       z == 0 && z' == 0 || x * z' == x' * z && y * z' == y' * z
 
-instance [OfNat Q 0] [OfNat Q 1] [OfNat Q 2] [inst₁ : Curve Weierstrass Projective E Q R] 
-         [inst₂ : WCurve Projective E Q R] 
+class WCurve (c : Coordinate) (E : Type _) (Q : Type _) (R : Type _) 
+      [Add Q] [Mul Q] [Sub Q] [Div Q] [GaloisField Q] 
+      [Add R] [Mul R] [Sub R] [Div R] [GaloisField R] [PrimeField R]
+      [Curve Weierstrass c E Q R] where
+  a_ : ProjectivePoint Weierstrass c E Q R → Q
+  b_ : ProjectivePoint Weierstrass c E Q R → Q
+  h_ : ProjectivePoint Weierstrass c E Q R → Nat
+  q_ : ProjectivePoint Weierstrass c E Q R → Nat
+  r_ : ProjectivePoint Weierstrass c E Q R → Nat
+
+class WPCurve (c : Coordinate) (E : Type _) (Q : Type _) (R : Type _) 
+      [Add Q] [Mul Q] [Sub Q] [Div Q] [GaloisField Q] 
+      [Add R] [Mul R] [Sub R] [Div R] [GaloisField R] [PrimeField R]
+      [Curve Weierstrass Projective E Q R] [WCurve Projective E Q R] where
+  gP : ProjectivePoint Weierstrass Projective E Q R
+
+def witness : (A : Type _) := sorry
+
+instance [inst₁ : Curve Weierstrass Projective E Q R] 
+         [inst₂ : WCurve Projective E Q R] [inst₃ : WPCurve Projective E Q R] 
          [BEq Q] : Curve Weierstrass Projective E Q R where
   Point := ProjectivePoint Weierstrass Projective E Q R
-  eqP := prEq
-  addInst := sorry
-  neqInst := sorry
-  one := sorry
-  z := sorry
-  char := sorry
-  id := .P 0 1 0
-  cof := sorry
-  isWellDefined p :=
-    match p with
-      | (.P x y z) => sorry
-  inv p :=
-    match p with
-      | .P x y z => .P x (-y) z
   add p₁ p₂ :=
     match (p₁, p₂) with
       | (.P x₁ y₁ z₁, .P x₂ y₂ z₂) =>
@@ -135,11 +119,60 @@ instance [OfNat Q 0] [OfNat Q 1] [OfNat Q 2] [inst₁ : Curve Weierstrass Projec
           let y₃ := (u * (r - a)) - (vvv * y₁z₂)
           let z₃ := vvv * z₁z₂
           (.P x₃ y₃ z₃)
-  disc := sorry
-  frob p :=
+  char := WCurve.q_
+  id := .P 0 1 0
+  cof := WCurve.h_
+  isWellDefined p :=
+    let a' := @WCurve.a_ Projective E Q R addq mulq subq div galq addr mulr subr divr galr prr inst₁ inst₂
+    let b' := @WCurve.b_ Projective E Q R addq mulq subq div galq addr mulr subr divr galr prr inst₁ inst₂
+    let a := a' witness
+    let b := b' witness
     match p with
-      | .P x y z => .P (galq.frob x) (galq.frob y) (galq.frob z)
-
-
+      | (.P x y z) => ((x * x) + (a * z) * z) * x == ((y * y) - (b * z) * z) * z
+  inv 
+    | .P x y z => .P x (-y) z
+  disc _ :=
+    let a' := 
+      @WCurve.a_ Projective E Q R addq mulq subq div galq addr mulr subr divr galr prr inst₁ inst₂
+    let b' :=
+      @WCurve.b_ Projective E Q R addq mulq subq div galq addr mulr subr divr galr prr inst₁ inst₂
+    let a := a' witness
+    let b := b' witness
+    (((4 * a) * a) * a) + ((27 * b) * b)
+  frob
+    | .P x y z => .P (galq.frob x) (galq.frob y) (galq.frob z)
+  order := WCurve.r_
+  dbl
+    | (.P x y z) => 
+    if z == 0 
+    then .P 1 0 1 
+    else
+    let a' := 
+      @WCurve.a_ Projective E Q R addq mulq subq div galq addr mulr subr divr galr prr inst₁ inst₂
+    let a := a' witness
+    let xx := x * x
+    let zz := z * z
+    let w := (a * zz) + (3 * xx)
+    let s := (2 * y) * z
+    let ss := s * s
+    let sss := ss * s
+    let r := y * s
+    let rr := r * r
+    let xr := x + r
+    let b := ((xr * xr) - xx) - xr
+    let h := (w * w) - 2 * b
+    let x' := h * s
+    let y' := (w * (b - h)) - (2 * rr)
+    .P x' y' sss
+  gen := inst₃.gP
+  point x y := 
+    let p : ProjectivePoint Weierstrass Projective E Q R := .P x y 1
+    let a' := @WCurve.a_ Projective E Q R addq mulq subq div galq addr mulr subr divr galr prr inst₁ inst₂
+    let b' := @WCurve.b_ Projective E Q R addq mulq subq div galq addr mulr subr divr galr prr inst₁ inst₂
+    let a := a' witness
+    let b := b' witness
+    if ((x * x) + (a * 1) * 1) * x == ((y * y) - (b * 1) * 1) * 1 then .some p else none
+  pointX := sorry
+  yx := sorry
 
 end EllipticCurves
