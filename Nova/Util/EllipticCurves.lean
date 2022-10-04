@@ -27,7 +27,7 @@ class Curve (f : Form) (c : Coordinate)
   z : OfNat Point 0
   char : Point → Nat
   cof : Point → Nat
-  isWellDefined : Point → Nat
+  isWellDefined : Point → Bool
   disc : Point → Q
   order : Point → Nat
   add : Point → Point → Point
@@ -42,11 +42,11 @@ class Curve (f : Form) (c : Coordinate)
 
 open Curve
 
-#check Point
-
-variable {Q R : Type} 
-  [Add Q] [Mul Q] [Div Q] [Sub Q] [GaloisField Q]
-  [Add R] [Mul R] [Div R] [Sub R] [GaloisField R] [PrimeField R]
+variable {Q R : Type _} 
+  [addq : Add Q] [mulq : Mul Q] [div : Div Q] 
+  [subq : Sub Q] [galq : GaloisField Q] [Neg Q]
+  [addr : Add R] [mulr : Mul R] [divr : Div R] 
+  [subr : Sub R] [galr : GaloisField R] [prr : PrimeField R]
 
 instance [Curve f c E Q R] : Add (Curve.Point f c E Q R) where
   add := add
@@ -90,5 +90,30 @@ class WPCurve (c : Coordinate) (E : Type _) (Q : Type _) (R : Type _)
 
 inductive ProjectivePoint (f : Form) (p : Coordinate) (E : Type _) (Q : Type _) (R : Type _) where
   | P : Q → Q → Q → ProjectivePoint f p E Q R
+
+instance prEq [OfNat Q 0] [BEq Q] : BEq (ProjectivePoint Weierstrass Projective E Q R) where
+  beq p₁ p₂ :=
+    match (p₁, p₂) with
+      | (.P x y z, .P x' y' z') =>
+      z == 0 && z' == 0 || x * z' == x' * z && y * z' == y' * z
+
+instance [OfNat Q 0] [OfNat Q 1] [inst₁ : Curve Weierstrass Projective E Q R] 
+         [inst₂ : WCurve Projective E Q R] 
+         [BEq Q] : Curve Weierstrass Projective E Q R where
+  Point := ProjectivePoint Weierstrass Projective E Q R
+  eqP := prEq
+  addInst := sorry
+  neqInst := sorry
+  one := sorry
+  z := sorry
+  char := sorry
+  id := .P 0 1 0
+  cof := sorry
+  isWellDefined p :=
+    match p with
+      | (.P x y z) => sorry
+  inv p :=
+    match p with
+      | .P x y z => .P x (-y) z
 
 end EllipticCurves
