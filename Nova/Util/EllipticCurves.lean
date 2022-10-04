@@ -72,24 +72,20 @@ def mul' [Curve f c E Q R] (p : Point f c E Q R) (n : Int) : Point f c E Q R :=
 
 open Form Coordinate
 
-def WPoint := Point Weierstrass
-
-def WPPoint := WPoint Projective
-
 class WCurve (c : Coordinate) (E : Type _) (Q : Type _) (R : Type _) 
       [Add Q] [Mul Q] [Sub Q] [Div Q] [GaloisField Q] 
       [Add R] [Mul R] [Sub R] [Div R] [GaloisField R] [PrimeField R]
       [Curve Weierstrass c E Q R] where
   a_ : Point Weierstrass c E Q R → Q
   b_ : Point Weierstrass c E Q R → Q
-  h_ : Point Weierstrass c E Q R → Natural
-  q_ : Point Weierstrass c E Q R → Natural
-  r_ : Point Weierstrass c E Q R → Natural
+  h_ : Point Weierstrass c E Q R → Nat
+  q_ : Point Weierstrass c E Q R → Nat
+  r_ : Point Weierstrass c E Q R → Nat
 
 class WPCurve (c : Coordinate) (E : Type _) (Q : Type _) (R : Type _) 
       [Add Q] [Mul Q] [Sub Q] [Div Q] [GaloisField Q] 
       [Add R] [Mul R] [Sub R] [Div R] [GaloisField R] [PrimeField R]
-      [Curve Weierstrass Projective E Q R] where
+      [Curve Weierstrass Projective E Q R] [WCurve Projective E Q R] where
   gP : Point Weierstrass Projective E Q R
 
 inductive ProjectivePoint (f : Form) (p : Coordinate) (E : Type _) (Q : Type _) (R : Type _) where
