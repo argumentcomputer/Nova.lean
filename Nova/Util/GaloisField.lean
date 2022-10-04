@@ -2,7 +2,7 @@ import YatimaStdLib.Zmod
 
 namespace GaloisField
 
-class GaloisField (K : Type) 
+class GaloisField (K : Type _) 
       [Add K] [Mul K] [Sub K] [Div K] where
   char : Nat
   deg : K → Nat
@@ -13,7 +13,7 @@ instance : GaloisField (Zmod p) where
   deg := fun _ => 1
   frob := id
 
-class PrimeField (K : Type) 
+class PrimeField (K : Type _) 
       [Add K] [Mul K] [Sub K] [Div K] [GaloisField K] where
   fromP : K → Int
 
