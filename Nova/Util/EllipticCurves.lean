@@ -50,13 +50,14 @@ instance [Curve f c E Q R] : Add (Curve.Point f c E Q R) where
 def isEven (n : Nat) : Bool :=
   if n % 2 == 0 then true else false
 
+open Nat in
 def mulNat [Curve f c E Q R] (p : Point f c E Q R) (n : Nat) : Point f c E Q R :=
   match h : n with
     | 0 => id
     | (Nat.succ k) =>
       if k == 0 then p
       else
-        have h : n / 2 < n := sorry
+        have h : n / 2 < n := div_lt_self (zero_lt_of_ne_zero (h ▸ succ_ne_zero k)) (by decide)
         let p' := mulNat (dbl p) (n / 2)
         if isEven n then p' else add p p'
     termination_by _ => n
