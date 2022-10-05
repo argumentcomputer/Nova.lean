@@ -57,7 +57,7 @@ def mulNat [Curve f c E Q R] (p : Point f c E Q R) (n : Nat) : Point f c E Q R :
     | (Nat.succ k) =>
       if k == 0 then p
       else
-        have h : n / 2 < n := div_lt_self (zero_lt_of_ne_zero (h ▸ succ_ne_zero k)) (by decide)
+        have : n / 2 < n := div_lt_self (zero_lt_of_ne_zero (h ▸ succ_ne_zero k)) (by decide)
         let p' := mulNat (dbl p) (n / 2)
         if isEven n then p' else add p p'
     termination_by _ => n
