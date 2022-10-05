@@ -4,19 +4,7 @@ open GaloisField
 
 namespace EllipticCurves
 
-inductive Form : Type where
-  | Binary
-  | Edwards
-  | Montgomery
-  | Weierstrass
-
-inductive Coordinate : Type where
-  | Jacobian
-  | Affine
-  | Projective
-
-class Curve (f : Form) (c : Coordinate) 
-      (E : Type _) (Q : Type _) (R : Type _) 
+class Curve (Q : Type _) (R : Type _) 
       [Add Q] [Mul Q] [Sub Q] [Div Q] [GaloisField Q] 
       [Add R] [Mul R] [Sub R] [Div R] [GaloisField R] [PrimeField R] where
   Point : Type
@@ -44,62 +32,61 @@ variable {Q R : Type _}
   [addr : Add R] [mulr : Mul R] [divr : Div R] 
   [subr : Sub R] [galr : GaloisField R] [prr : PrimeField R]
 
-instance [Curve f c E Q R] : Add (Curve.Point f c E Q R) where
+instance [Curve Q R] : Add (Curve.Point Q R) where
   add := add
 
 def isEven (n : Nat) : Bool :=
   if n % 2 == 0 then true else false
 
 open Nat in
-def mulNat [Curve f c E Q R] (p : Point f c E Q R) (n : Nat) : Point f c E Q R :=
+def mulNat [Curve Q R] (p : Curve.Point Q R) (n : Nat) : Point Q R :=
   match h : n with
     | 0 => id
     | (Nat.succ k) =>
       if k == 0 then p
       else
-        have : n / 2 < n := div_lt_self (zero_lt_of_ne_zero (h ▸ succ_ne_zero k)) (by decide)
+        have : n / 2 < n := 
+        div_lt_self (zero_lt_of_ne_zero (h ▸ succ_ne_zero k)) (by decide)
         let p' := mulNat (dbl p) (n / 2)
         if isEven n then p' else add p p'
     termination_by _ => n
 
-def mul' [Curve f c E Q R] (p : Point f c E Q R) (n : Int) : Point f c E Q R :=
+def mul' [Curve Q R] (p : Point Q R) (n : Int) : Point Q R :=
   match n with
     | (n : Nat) => mulNat p n
     | (Int.negSucc n) => inv $ mulNat p n
 
-open Form Coordinate
+inductive ProjectivePoint (Q : Type _) (R : Type _) where
+  | P : Q → Q → Q → ProjectivePoint Q R
 
-inductive ProjectivePoint (f : Form) (p : Coordinate) (E : Type _) (Q : Type _) (R : Type _) where
-  | P : Q → Q → Q → ProjectivePoint f p E Q R
-
-instance prEq [OfNat Q 0] [BEq Q] : BEq (ProjectivePoint Weierstrass Projective E Q R) where
+instance prEq [OfNat Q 0] [BEq Q] : BEq (ProjectivePoint Q R) where
   beq p₁ p₂ :=
     match (p₁, p₂) with
       | (.P x y z, .P x' y' z') =>
       z == 0 && z' == 0 || x * z' == x' * z && y * z' == y' * z
 
-class WCurve (c : Coordinate) (E : Type _) (Q : Type _) (R : Type _) 
+class WCurve (Q : Type _) (R : Type _) 
       [Add Q] [Mul Q] [Sub Q] [Div Q] [GaloisField Q] 
       [Add R] [Mul R] [Sub R] [Div R] [GaloisField R] [PrimeField R]
-      [Curve Weierstrass c E Q R] where
-  a_ : ProjectivePoint Weierstrass c E Q R → Q
-  b_ : ProjectivePoint Weierstrass c E Q R → Q
-  h_ : ProjectivePoint Weierstrass c E Q R → Nat
-  q_ : ProjectivePoint Weierstrass c E Q R → Nat
-  r_ : ProjectivePoint Weierstrass c E Q R → Nat
+      [Curve Q R] where
+  a_ : ProjectivePoint Q R → Q
+  b_ : ProjectivePoint Q R → Q
+  h_ : ProjectivePoint Q R → Nat
+  q_ : ProjectivePoint Q R → Nat
+  r_ : ProjectivePoint Q R → Nat
 
-class WPCurve (c : Coordinate) (E : Type _) (Q : Type _) (R : Type _) 
+class WPCurve (Q : Type _) (R : Type _) 
       [Add Q] [Mul Q] [Sub Q] [Div Q] [GaloisField Q] 
       [Add R] [Mul R] [Sub R] [Div R] [GaloisField R] [PrimeField R]
-      [Curve Weierstrass Projective E Q R] [WCurve Projective E Q R] where
-  gP : ProjectivePoint Weierstrass Projective E Q R
+      [Curve Q R] [WCurve Q R] where
+  gP : ProjectivePoint Q R
 
 def witness : (A : Type _) := sorry
 
-instance [inst₁ : Curve Weierstrass Projective E Q R] 
-         [inst₂ : WCurve Projective E Q R] [inst₃ : WPCurve Projective E Q R] 
-         [BEq Q] : Curve Weierstrass Projective E Q R where
-  Point := ProjectivePoint Weierstrass Projective E Q R
+instance [inst₁ : Curve Q R] 
+         [inst₂ : WCurve Q R] [inst₃ : WPCurve Q R] 
+         [BEq Q] : Curve Q R where
+  Point := ProjectivePoint Q R
   add p₁ p₂ :=
     match (p₁, p₂) with
       | (.P x₁ y₁ z₁, .P x₂ y₂ z₂) =>
@@ -124,8 +111,8 @@ instance [inst₁ : Curve Weierstrass Projective E Q R]
   id := .P 0 1 0
   cof := WCurve.h_
   isWellDefined p :=
-    let a' := @WCurve.a_ Projective E Q R addq mulq subq div galq addr mulr subr divr galr prr inst₁ inst₂
-    let b' := @WCurve.b_ Projective E Q R addq mulq subq div galq addr mulr subr divr galr prr inst₁ inst₂
+    let a' := @WCurve.a_ Q R addq mulq subq div galq addr mulr subr divr galr prr inst₁ inst₂
+    let b' := @WCurve.b_ Q R addq mulq subq div galq addr mulr subr divr galr prr inst₁ inst₂
     let a := a' witness
     let b := b' witness
     match p with
@@ -134,9 +121,9 @@ instance [inst₁ : Curve Weierstrass Projective E Q R]
     | .P x y z => .P x (-y) z
   disc _ :=
     let a' := 
-      @WCurve.a_ Projective E Q R addq mulq subq div galq addr mulr subr divr galr prr inst₁ inst₂
+      @WCurve.a_ Q R addq mulq subq div galq addr mulr subr divr galr prr inst₁ inst₂
     let b' :=
-      @WCurve.b_ Projective E Q R addq mulq subq div galq addr mulr subr divr galr prr inst₁ inst₂
+      @WCurve.b_ Q R addq mulq subq div galq addr mulr subr divr galr prr inst₁ inst₂
     let a := a' witness
     let b := b' witness
     (((4 * a) * a) * a) + ((27 * b) * b)
@@ -149,7 +136,7 @@ instance [inst₁ : Curve Weierstrass Projective E Q R]
     then .P 1 0 1 
     else
     let a' := 
-      @WCurve.a_ Projective E Q R addq mulq subq div galq addr mulr subr divr galr prr inst₁ inst₂
+      @WCurve.a_ Q R addq mulq subq div galq addr mulr subr divr galr prr inst₁ inst₂
     let a := a' witness
     let xx := x * x
     let zz := z * z
@@ -167,9 +154,11 @@ instance [inst₁ : Curve Weierstrass Projective E Q R]
     .P x' y' sss
   gen := inst₃.gP
   point x y := 
-    let p : ProjectivePoint Weierstrass Projective E Q R := .P x y 1
-    let a' := @WCurve.a_ Projective E Q R addq mulq subq div galq addr mulr subr divr galr prr inst₁ inst₂
-    let b' := @WCurve.b_ Projective E Q R addq mulq subq div galq addr mulr subr divr galr prr inst₁ inst₂
+    let p : ProjectivePoint Q R := .P x y 1
+    let a' := 
+      @WCurve.a_ Q R addq mulq subq div galq addr mulr subr divr galr prr inst₁ inst₂
+    let b' := 
+      @WCurve.b_ Q R addq mulq subq div galq addr mulr subr divr galr prr inst₁ inst₂
     let a := a' witness
     let b := b' witness
     if ((x * x) + (a * 1) * 1) * x == ((y * y) - (b * 1) * 1) * 1 then .some p else none
