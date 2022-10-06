@@ -28,9 +28,7 @@ def _x : Zmod Q :=
 def _y : Zmod Q :=
   0x8b3f481e3aaa0f1a09e30ed741d8ae4fcf5e095d5d00af600db18cb2c04b3edd03cc744a2888ae40caa232946c5e7e1
 
-inductive BLS12381
-
-open EllipticCurves
+open EllipticCurves Weierstrass
 
 instance [Curve (Zmod Q) (Zmod R)] : WCurve (Zmod Q) (Zmod R) where
   a_ _ := _a
@@ -38,5 +36,10 @@ instance [Curve (Zmod Q) (Zmod R)] : WCurve (Zmod Q) (Zmod R) where
   h_ _ := _h
   q_ _ := _q
   r_ _ := _r
+
+def gP : ProjectivePoint (Zmod Q) (Zmod R) := .P _x _y 1
+
+instance [Curve (Zmod Q) (Zmod R)] : WPCurve (Zmod Q) (Zmod R) where
+  gP := gP
 
 end BLS12381

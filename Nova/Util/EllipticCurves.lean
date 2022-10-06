@@ -20,10 +20,10 @@ class Curve (Q : Type _) (R : Type _)
   frob : Point → Point
   gen : Point
   point : Q → Q → Option Point
-  pointX : Q → Option Point
-  yx : Point → Q → Option Q
 
 open Curve
+
+namespace Weierstrass
 
 variable {Q R : Type _} 
   [addq : Add Q] [mulq : Mul Q] [div : Div Q] 
@@ -162,7 +162,7 @@ instance [inst₁ : Curve Q R]
     let a := a' witness
     let b := b' witness
     if ((x * x) + (a * 1) * 1) * x == ((y * y) - (b * 1) * 1) * 1 then .some p else none
-  pointX := sorry
-  yx := sorry
+
+end Weierstrass
 
 end EllipticCurves
