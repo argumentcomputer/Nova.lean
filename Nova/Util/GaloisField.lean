@@ -11,7 +11,7 @@ class GaloisField (K : Type _)
 instance : GaloisField (Zmod p) where
   char := p - 1
   deg := fun _ => 1
-  frob := id
+  frob r := r ^ p
 
 class PrimeField (K : Type _) 
       [Add K] [Mul K] [Sub K] [Div K] [GaloisField K] where
