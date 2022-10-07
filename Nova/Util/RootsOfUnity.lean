@@ -31,7 +31,7 @@ def cardinality : RootsOfUnity n K → Nat := fun _ => n
 
 -- Cofactor of the subgroup in the group.
 def cofactor : RootsOfUnity n K → Nat := 
-  let ord := @order K add mul sub div gal
+  let ord := @order K gal
   (fun x => ord / x) ∘ cardinality
 
 -- isUnity checks is a given element of a Galois field is unity
