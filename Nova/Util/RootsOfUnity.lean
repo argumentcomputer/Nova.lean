@@ -38,8 +38,15 @@ def cofactor : RootsOfUnity n K → Nat :=
 def isUnity (k : K) (n : Nat) : Bool :=
   k ^ n == 1
 
+-- Check if an element is the root of unity.
 def isRootOfUnity (r : RootsOfUnity n K) : Bool :=
   match r with
     | .U x => isUnity x $ cardinality r
+
+-- Check if an element is a primitive root of unity.
+def isPrimitiveRootOfUnity (r : RootsOfUnity n K) : Bool :=
+  match r with
+    | .U x =>
+        isRootOfUnity r && not (List.any (List.iota $ cardinality r - 1) (isUnity x))
 
 end RootsOfUnity
