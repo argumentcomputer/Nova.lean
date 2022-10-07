@@ -31,11 +31,11 @@ def _y : Zmod Q :=
 open EllipticCurves Weierstrass
 
 instance [Curve (Zmod Q) (Zmod R)] : WCurve (Zmod Q) (Zmod R) where
-  a_ _ := _a
-  b_ _ := _b
-  h_ _ := _h
-  q_ _ := _q
-  r_ _ := _r
+  a_ := _a
+  b_ := _b
+  h_ := _h
+  q_ := _q
+  r_ := _r
 
 def gP : ProjectivePoint (Zmod Q) (Zmod R) := .P _x _y 1
 
