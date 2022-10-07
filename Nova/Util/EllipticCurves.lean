@@ -63,20 +63,17 @@ class WCurve (Q : Type _) (R : Type _)
       [GaloisField Q] 
       [GaloisField R] [PrimeField R]
       [Curve Q R] where
-  a_ : ProjectivePoint Q R → Q
-  b_ : ProjectivePoint Q R → Q
-  h_ : ProjectivePoint Q R → Nat
-  q_ : ProjectivePoint Q R → Nat
-  r_ : ProjectivePoint Q R → Nat
+  a_ : Q
+  b_ : Q
+  h_ : Nat
+  q_ : Nat
+  r_ : Nat
 
 class WPCurve (Q : Type _) (R : Type _) [GaloisField Q] [GaloisField R] [PrimeField R]
       [Curve Q R] [WCurve Q R] where
   gP : ProjectivePoint Q R
 
-def witness : (A : Type _) := sorry
-
-instance [inst₁ : Curve Q R] 
-         [inst₂ : WCurve Q R] [inst₃ : WPCurve Q R] 
+instance [PrimeField R] [PrimeField Q] [Curve Q R] [WCurve Q R] [WPCurve Q R] 
          [BEq Q] : Curve Q R where
   Point := ProjectivePoint Q R
   add p₁ p₂ :=
@@ -99,37 +96,29 @@ instance [inst₁ : Curve Q R]
           let y₃ := (u * (r - a)) - (vvv * y₁z₂)
           let z₃ := vvv * z₁z₂
           (.P x₃ y₃ z₃)
-  char := WCurve.q_
+  char _ := WCurve.q_ Q R
   id := .P 0 1 0
-  cof := WCurve.h_
+  cof _ := WCurve.h_ Q R
   isWellDefined p :=
-    let a' := @WCurve.a_ Q R galq galr prr inst₁ inst₂
-    let b' := @WCurve.b_ Q R galq galr prr inst₁ inst₂
-    let a := a' witness
-    let b := b' witness
+    let a : Q := WCurve.a_ R
+    let b : Q := WCurve.b_ R
     match p with
       | (.P x y z) => ((x * x) + (a * z) * z) * x == ((y * y) - (b * z) * z) * z
   inv 
     | .P x y z => .P x (-y) z
   disc _ :=
-    let a' := 
-      @WCurve.a_ Q R galq galr prr inst₁ inst₂
-    let b' :=
-      @WCurve.b_ Q R galq galr prr inst₁ inst₂
-    let a := a' witness
-    let b := b' witness
-    (((4 * a) * a) * a) + ((27 * b) * b)
+    let a : Q := WCurve.a_ R
+    let b : Q := WCurve.b_ R
+    (((4 * a) * a) * a) + ((27 * b) * a)
   frob
     | .P x y z => .P (galq.frob x) (galq.frob y) (galq.frob z)
-  order := WCurve.r_
+  order _ := WCurve.r_ Q R
   dbl
     | (.P x y z) => 
     if z == 0 
     then .P 1 0 1 
     else
-    let a' := 
-      @WCurve.a_ Q R galq galr prr inst₁ inst₂
-    let a := a' witness
+    let a : Q := WCurve.a_ R
     let xx := x * x
     let zz := z * z
     let w := (a * zz) + (3 * xx)
@@ -144,15 +133,11 @@ instance [inst₁ : Curve Q R]
     let x' := h * s
     let y' := (w * (b - h)) - (2 * rr)
     .P x' y' sss
-  gen := inst₃.gP
+  gen := WPCurve.gP
   point x y := 
     let p : ProjectivePoint Q R := .P x y 1
-    let a' := 
-      @WCurve.a_ Q R galq galr prr inst₁ inst₂
-    let b' := 
-      @WCurve.b_ Q R galq galr prr inst₁ inst₂
-    let a := a' witness
-    let b := b' witness
+    let a : Q := WCurve.a_ R
+    let b : Q := WCurve.b_ R
     if ((x * x) + (a * 1) * 1) * x == ((y * y) - (b * 1) * 1) * 1 then .some p else none
 
 end Weierstrass
