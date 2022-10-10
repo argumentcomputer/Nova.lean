@@ -24,13 +24,14 @@ open Curve
 namespace Weierstrass
 
 variable {Q R : Type _}  [galq : GaloisField Q] 
-  [Neg Q] [OfNat Q 4] [OfNat Q 27] [OfNat Q 2] [OfNat Q 3] [galr : GaloisField R] [prr : PrimeField R]
+  [Neg Q] [OfNat Q 4] [OfNat Q 27] [OfNat Q 2] [OfNat Q 3] 
+  [galr : GaloisField R] [prr : PrimeField R]
 
-instance [Curve Q R] : Add (Curve.Point Q R) where
-  add := add
+instance [Curve Q R] [BEq (Point Q R)] : Add (Point Q R) where
+  add x y := if x == y then dbl x else add x y
 
-def isEven (n : Nat) : Bool :=
-  if n % 2 == 0 then true else false
+instance [Curve Q R] : OfNat (Point Q R) 0 where
+  ofNat := id
 
 open Nat in
 def mulNat [Curve Q R] (p : Curve.Point Q R) (n : Nat) : Point Q R :=
@@ -42,6 +43,7 @@ def mulNat [Curve Q R] (p : Curve.Point Q R) (n : Nat) : Point Q R :=
         have : n / 2 < n := 
         div_lt_self (zero_lt_of_ne_zero (h ▸ succ_ne_zero k)) (by decide)
         let p' := mulNat (dbl p) (n / 2)
+        let isEven n := if n % 2 == 0 then true else false
         if isEven n then p' else add p p'
     termination_by _ => n
 
@@ -49,6 +51,12 @@ def mul' [Curve Q R] (p : Point Q R) (n : Int) : Point Q R :=
   match n with
     | (n : Nat) => mulNat p n
     | (Int.negSucc n) => inv $ mulNat p n
+
+instance [Curve Q R] : HPow (Point Q R) Int (Point Q R) where
+  hPow := mul'
+
+instance [Curve Q R] [BEq (Point Q R)] : Sub (Point Q R) where
+  sub a b := a + (Curve.inv b)
 
 inductive ProjectivePoint (Q : Type _) (R : Type _) where
   | P : Q → Q → Q → ProjectivePoint Q R
