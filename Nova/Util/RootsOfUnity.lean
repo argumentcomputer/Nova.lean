@@ -22,9 +22,7 @@ instance [Div A] : Div (RootsOfUnity n A) where
 
 open GaloisField
 
-variable {K : Type} [add : Add K] [mul : Mul K] 
-         [sub : Sub K] [div : Div K] [gal : GaloisField K]
-         [HPow K Nat K] [BEq K] [OfNat K 1]
+variable {K : Type} [gal : GaloisField K] [HPow K Nat K] [BEq K]
 
 -- Cardinality of the subgroup
 def cardinality : RootsOfUnity n K → Nat := fun _ => n
