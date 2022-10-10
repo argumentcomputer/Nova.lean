@@ -1,3 +1,4 @@
+import YatimaStdLib.Polynomial
 import YatimaStdLib.Zmod
 
 /-
@@ -64,5 +65,20 @@ class PrimeField (K : Type _) [GaloisField K] where
 
 instance : PrimeField (Zmod p) where
   fromP a := (a : Int)
+
+namespace Poly
+
+open Polynomial
+
+def VPoly A := Polynomial (Array A) 
+
+inductive Extension (P : Type _) (K : Type _) where
+  | E : VPoly K → Extension P K
+
+class IrreducibleMonic (P : Type _) (K : Type _) [GaloisField K] where
+  poly : Extension P K → VPoly K
+  
+
+end Poly
 
 end GaloisField

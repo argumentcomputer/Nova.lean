@@ -30,6 +30,8 @@ def _y : Zmod Q :=
 
 open EllipticCurves Weierstrass
 
+open ProjectiveCurves
+
 instance [Curve (Zmod Q) (Zmod R)] : WCurve (Zmod Q) (Zmod R) where
   a_ := _a
   b_ := _b
@@ -41,5 +43,7 @@ def gP : ProjectivePoint (Zmod Q) (Zmod R) := .P _x _y 1
 
 instance [Curve (Zmod Q) (Zmod R)] : WPCurve (Zmod Q) (Zmod R) where
   gP := gP
+
+open AffineCurves
 
 end BLS12381

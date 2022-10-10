@@ -19,6 +19,16 @@ class Curve (Q : Type _) (R : Type _) [GaloisField Q] [GaloisField R] [PrimeFiel
   gen : Point
   point : Q → Q → Option Point
 
+class WCurve (Q : Type _) (R : Type _) 
+      [GaloisField Q] 
+      [GaloisField R] [PrimeField R]
+      [Curve Q R] where
+  a_ : Q
+  b_ : Q
+  h_ : Nat
+  q_ : Nat
+  r_ : Nat
+
 open Curve
 
 namespace Weierstrass
@@ -67,15 +77,7 @@ instance prEq [OfNat Q 0] [BEq Q] : BEq (ProjectivePoint Q R) where
       | (.P x y z, .P x' y' z') =>
       z == 0 && z' == 0 || x * z' == x' * z && y * z' == y' * z
 
-class WCurve (Q : Type _) (R : Type _) 
-      [GaloisField Q] 
-      [GaloisField R] [PrimeField R]
-      [Curve Q R] where
-  a_ : Q
-  b_ : Q
-  h_ : Nat
-  q_ : Nat
-  r_ : Nat
+namespace ProjectiveCurves
 
 class WPCurve (Q : Type _) (R : Type _) [GaloisField Q] [GaloisField R] [PrimeField R]
       [Curve Q R] [WCurve Q R] where
@@ -147,6 +149,66 @@ instance [PrimeField R] [PrimeField Q] [Curve Q R] [WCurve Q R] [WPCurve Q R]
     let a : Q := WCurve.a_ R
     let b : Q := WCurve.b_ R
     if ((x * x) + (a * 1) * 1) * x == ((y * y) - (b * 1) * 1) * 1 then .some p else none
+
+end ProjectiveCurves
+
+namespace AffineCurves
+
+inductive AffinePoint (Q : Type _) (R : Type _) where
+  -- affine point
+  | A : Q → Q → AffinePoint Q R
+  -- infinity point
+  | O : AffinePoint Q R
+  deriving BEq
+
+class WACurve (Q : Type _) (R : Type _) 
+      [GaloisField Q] [GaloisField R] [PrimeField R]
+      [Curve Q R] [WCurve Q R] where
+  -- curve generator
+  gA_ : AffinePoint Q R
+
+instance [Curve Q R] [w : WCurve Q R] [WACurve Q R] [BEq Q] : Curve Q R where
+  Point := AffinePoint Q R
+  char _ := w.q_
+  cof _ := w.h_
+  add x y :=
+    match (x, y) with
+      | (.O, _) => .O
+      | (_, .O) => .O
+      | (.A x₁ y₁, .A x₂ y₂) =>
+        if x₁ == x₂ then .O else
+        let l := (y₁ - y₂) / (x₁ - x₂)
+        let x₃ := ((l * l) - x₁) - x₂
+        let y₃ := (l * (x₁ - x₃)) - y₁
+        .A x₃ y₃
+  isWellDefined
+    | .O => true
+    | .A x y => (((x * x) + w.a_) * x) + w.b_ == y * y
+  disc _ := (((4 * w.a_) * w.a_) * w.a_) + ((27 * w.b_) * w.b_)
+  order _ := w.r_
+  dbl
+    | .O => .O
+    | .A x y =>
+      if y == 0 then .O else
+      let xx := x * x
+      let l := (((xx + xx) + xx) + w.a_) / (y + y)
+      let x' := ((l * l) - x) - x
+      let y' := (l * (x - x')) - y
+      .A x' y'
+  id := .O
+  inv
+    | .O => .O
+    | .A x y => .A x (-y)
+  frob
+    | .O => .O
+    | .A x y => .A (GaloisField.frob x) (GaloisField.frob y)
+  gen := WACurve.gA_
+  point x y :=
+    let p := .A x y
+    if (((x * x) + w.a_) * x) + w.b_ == y * y then .some p else none
+
+
+end AffineCurves
 
 end Weierstrass
 
