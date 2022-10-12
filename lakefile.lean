@@ -7,4 +7,4 @@ package Nova
 lean_lib Nova
 
 require YatimaStdLib from git
-  "https://github.com/yatima-inc/YatimaStdLib.lean" @ "f22f6d6aade10f3da41d2bce1086794b40c34d97"
+  "https://github.com/yatima-inc/YatimaStdLib.lean" @ "07148ba7c40a163260cd7b3e1c76fd5ac964cb75"

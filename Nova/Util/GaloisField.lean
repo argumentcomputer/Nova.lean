@@ -64,7 +64,7 @@ instance : GaloisField (Zmod p) where
   minus := (. - .)
   divis := (. / .)
   char := p - 1
-  deg := 1
+  deg _ := 1
   frob r := r ^ p
 
 class PrimeField (K : Type _) [GaloisField K] where
@@ -75,7 +75,7 @@ instance : PrimeField (Zmod p) where
 
 open Polynomial
 
-def frobenius [gal : GaloisField K] [HShiftRight K Nat K] [Neg K]:
+def frobenius [gal : GaloisField K] [HShiftRight K Nat K] [Neg K] :
   Polynomial K → Polynomial K → Option (Polynomial K)
   | #[], _ => .some #[]
   | #[a],_ => .some #[frob a]
@@ -99,7 +99,7 @@ def frobenius [gal : GaloisField K] [HShiftRight K Nat K] [Neg K]:
     .some #[frob a, frob c * (-x) * nxq * nxq, frob b * nxq]
   | _,_ => .none
 
--- #eval frobenius (#[24,24,24] : Polynomial (Zmod 91)) (#[53,6] : Polynomial (Zmod 91))
+-- #eval frobenius (#[1,1,1] : Polynomial (Zmod 91)) (#[53,6] : Polynomial (Zmod 91))
 
 inductive Extension (P : Type _) (K : Type _) where
   | E : Polynomial K → Extension P K
