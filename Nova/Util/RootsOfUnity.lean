@@ -2,6 +2,9 @@ import Nova.Util.GaloisField
 
 namespace RootsOfUnity
 
+class CyclicSubgroup (G : Type _) where
+  g : G
+
 -- n-th roots of unity of Galois fields
 inductive RootsOfUnity (n : Nat) (A : Type _) where
   | U : A → RootsOfUnity n A
