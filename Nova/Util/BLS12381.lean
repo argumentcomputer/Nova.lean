@@ -44,6 +44,4 @@ def gP : ProjectivePoint (Zmod Q) (Zmod R) := .P _x _y 1
 instance [Curve (Zmod Q) (Zmod R)] : WPCurve (Zmod Q) (Zmod R) where
   gP := gP
 
-open AffineCurves
-
 end BLS12381
