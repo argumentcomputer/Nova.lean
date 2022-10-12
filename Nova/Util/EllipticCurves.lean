@@ -80,7 +80,7 @@ instance prEq [OfNat Q 0] [BEq Q] : BEq (ProjectivePoint Q R) where
 namespace ProjectiveCurves
 
 class WPCurve (Q : Type _) (R : Type _) [GaloisField Q] [GaloisField R] [PrimeField R]
-      [Curve Q R] [WCurve Q R] where
+      [Curve Q R] where
   gP : ProjectivePoint Q R
 
 instance [PrimeField R] [PrimeField Q] [Curve Q R] [WCurve Q R] [WPCurve Q R] 

@@ -138,8 +138,6 @@ instance [gal : GaloisField K] [irr : IrreducibleMonic P K] : GaloisField (Exten
         | .some z => .E z
         | .none => .E $ polyPow (irr.poly e) gal.char
 
-#check Array.toList
-
 instance [GaloisField K] [IrreducibleMonic P K] : ExtensionField (Extension P K) where
   fromE e := Array.toList (unExt e)
 
