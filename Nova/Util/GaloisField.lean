@@ -75,31 +75,35 @@ instance : PrimeField (Zmod p) where
 
 open Polynomial
 
-def frobenius [gal : GaloisField K] [HShiftRight K Nat K] [Neg K] :
+def frobenius [gal : GaloisField K] [BEq K] [HShiftRight K Nat K] [Neg K] :
   Polynomial K → Polynomial K → Option (Polynomial K)
   | #[], _ => .some #[]
   | #[a],_ => .some #[frob a]
-  | #[a,b], #[x,0,1] =>
-    if gal.deg x == 2 then .some #[a, -b] else
-    if gal.char == 2 then .some #[frob a - frob b * x]
-    else
-      let nxq : K := (-x) ^ (gal.char >>> 1)
-      .some #[frob a, frob b * nxq]
-  | #[a,b], #[x,0,0,1] =>
-    let (q,r) := Int.quotRem (gal.char) 3
-    let nxq : K := (-x) ^ q
-    if gal.char == 3 then .some #[frob a - frob b * x] else
-    if r == 1 then .some #[frob a, frob b * nxq] else
-    .some #[frob a, 0, frob b * nxq]
-  | #[a,b,c], #[x,0,0,1] =>
-    let (q,r) := Int.quotRem (gal.char) 3
-    let nxq : K := (-x) ^ q
-    if gal.char == 3 then .some #[frob a - (frob b - frob c * x) * x] else
-    if r == 1 then .some #[frob a, frob b * nxq, frob c * nxq * nxq] else
-    .some #[frob a, frob c * (-x) * nxq * nxq, frob b * nxq]
+  | #[a,b], #[x,y,z] =>
+    if y == 0 && z == 1 then
+      if gal.deg x == 2 then .some #[a, -b] else
+      if gal.char == 2 then .some #[frob a - frob b * x]
+      else
+        let nxq : K := (-x) ^ (gal.char >>> 1)
+        .some #[frob a, frob b * nxq]
+      else .none
+  | #[a,b], #[x,y₁,y₂,z] =>
+    if y₁ == 0 && y₂ == 0 && z == 1 then
+      let (q,r) := Int.quotRem (gal.char) 3
+      let nxq : K := (-x) ^ q
+      if gal.char == 3 then .some #[frob a - frob b * x] else
+      if r == 1 then .some #[frob a, frob b * nxq] else
+      .some #[frob a, 0, frob b * nxq]
+    else .none
+  | #[a,b,c], #[x,y₁,y₂,z] =>
+    if y₁ == 0 && y₂ == 0 && z == 1 then
+      let (q,r) := Int.quotRem (gal.char) 3
+      let nxq : K := (-x) ^ q
+      if gal.char == 3 then .some #[frob a - (frob b - frob c * x) * x] else
+      if r == 1 then .some #[frob a, frob b * nxq, frob c * nxq * nxq] else
+      .some #[frob a, frob c * (-x) * nxq * nxq, frob b * nxq]
+    else .none
   | _,_ => .none
-
--- #eval frobenius (#[1,1,1] : Polynomial (Zmod 91)) (#[53,6] : Polynomial (Zmod 91))
 
 inductive Extension (P : Type _) (K : Type _) where
   | E : Polynomial K → Extension P K
@@ -109,6 +113,9 @@ def unExt : Extension P K → Polynomial K
 
 class IrreducibleMonic (P : Type _) (K : Type _) [GaloisField K] where
   poly : Extension P K → Polynomial K
+
+class ExtensionField (K : Type) [GaloisField K] where
+  fromE [GaloisField (Extension P K)] [IrreducibleMonic P K] : Extension P K → List K
 
 def polyPow [OfNat K 0] : Polynomial K → Nat → Polynomial K
   | _, 0 => #[1]
@@ -130,5 +137,10 @@ instance [gal : GaloisField K] [irr : IrreducibleMonic P K] : GaloisField (Exten
       match frobenius p (irr.poly e) with
         | .some z => .E z
         | .none => .E $ polyPow (irr.poly e) gal.char
+
+#check Array.toList
+
+instance [GaloisField K] [IrreducibleMonic P K] : ExtensionField (Extension P K) where
+  fromE e := Array.toList (unExt e)
 
 end GaloisField
