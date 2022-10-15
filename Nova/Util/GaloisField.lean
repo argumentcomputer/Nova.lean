@@ -145,4 +145,16 @@ instance [gal : GaloisField K] [irr : IrreducibleMonic P K] : GaloisField (Exten
 instance [GaloisField K] [IrreducibleMonic P K] : ExtensionField (Extension P K) where
   fromE e := Array.toList (unExt e)
 
+class TowerOfFields (K : Type _) (L : Type _) [GaloisField K] [GaloisField L] where
+  embed : K → L
+
+instance [IrreducibleMonic P K] : TowerOfFields K (Extension P K) where
+  embed x := .E #[0,x]
+
+instance [GaloisField L] [GaloisField K] [IrreducibleMonic P K] 
+         [t₁ : TowerOfFields K L] [IrreducibleMonic P L] 
+         [GaloisField (Extension P L)]
+         [t₂ : TowerOfFields L (Extension P L)] : TowerOfFields K (Extension P L) where
+  embed := t₂.embed ∘ t₁.embed
+
 end GaloisField
