@@ -30,9 +30,9 @@ def _y : Zmod Q :=
 
 open EllipticCurves Weierstrass
 
-open ProjectiveCurves
+open ProjectiveCurves Form Coordinate
 
-instance [Curve (Zmod Q) (Zmod R)] : WCurve (Zmod Q) (Zmod R) where
+instance [Curve Weierstrass c (Zmod Q) (Zmod R)] : WCurve c (Zmod Q) (Zmod R) where
   a_ := _a
   b_ := _b
   h_ := _h
@@ -41,7 +41,7 @@ instance [Curve (Zmod Q) (Zmod R)] : WCurve (Zmod Q) (Zmod R) where
 
 def gP : ProjectivePoint (Zmod Q) (Zmod R) := .P _x _y 1
 
-instance [Curve (Zmod Q) (Zmod R)] : WPCurve (Zmod Q) (Zmod R) where
+instance [Curve Weierstrass Projective (Zmod Q) (Zmod R)] : WPCurve (Zmod Q) (Zmod R) where
   gP := gP
 
 end BLS12381

@@ -13,7 +13,7 @@ variable [Curve (Zmod q) (Zmod r)]
 variable [GaloisField (Extension U (Zmod q))]
 variable [WCurve (Zmod q) (Zmod r)]
 variable [WACurve (Zmod q) (Zmod r)]
-variable [Curve (Extension U (Zmod q)) (Zmod r)]
+variable [cur : Curve (Extension U (Zmod q)) (Zmod r)]
 variable [IrreducibleMonic U (Zmod q)]
 variable [GaloisField (Extension V (Extension U (Zmod q)))]
 variable [IrreducibleMonic V (Extension U (Zmod q))]
@@ -23,7 +23,7 @@ variable [WACurve (Extension U (Zmod q)) (Zmod r)]
 variable [Pairing (AffinePoint (Zmod q) (Zmod r)) (AffinePoint (Extension U (Zmod q)) (Zmod r)) (RootsOfUnity r (Extension W (Extension V (Extension U (Zmod q)))))]
 variable [ECPairing q r U V W]
 
-def millerLoop 
+def millerLoop
   (a : AffinePoint (Zmod q) (Zmod r)) 
   (b : AffinePoint (Extension U (Zmod q)) (Zmod r))
   (l : List Int)
@@ -36,7 +36,7 @@ def millerAlgorithmBLS12
   RootsOfUnity r (Extension W (Extension V (Extension U (Zmod q)))) :=
     match l with
       | x :: xs => 
-        (fun (x, y) => y) $ millerLoop a b xs (if x > 0 then b else _, _)
+        (fun (x, y) => y) $ millerLoop a b xs (if x > 0 then b else cur.inv b, _)
       | [] => .U $ .E #[.E #[.E #[1]]]
 
 end Ate

@@ -2,9 +2,22 @@ import Nova.Util.GaloisField
 
 open GaloisField
 
+inductive Form : Type where
+  | Binary
+  | Edwards
+  | Montgomery
+  | Weierstrass
+
+inductive Coordinate : Type where
+  | Projective
+  | Affine
+
 namespace EllipticCurves
 
-class Curve (Q : Type _) (R : Type _) [GaloisField Q] [GaloisField R] [PrimeField R] where
+open Form Coordinate
+
+class Curve (f : Form) (c : Coordinate) (Q : Type _) (R : Type _) 
+      [GaloisField Q] [GaloisField R] [PrimeField R] where
   Point : Type
   char : Point → Nat
   cof : Point → Nat
@@ -19,10 +32,10 @@ class Curve (Q : Type _) (R : Type _) [GaloisField Q] [GaloisField R] [PrimeFiel
   gen : Point
   point : Q → Q → Option Point
 
-class WCurve (Q : Type _) (R : Type _) 
+class WCurve (c : Coordinate) (Q : Type _) (R : Type _) 
       [GaloisField Q] 
       [GaloisField R] [PrimeField R]
-      [Curve Q R] where
+      [Curve Weierstrass c Q R] where
   a_ : Q
   b_ : Q
   h_ : Nat
@@ -37,14 +50,14 @@ variable {Q R : Type _}  [galq : GaloisField Q]
   [Neg Q] [OfNat Q 4] [OfNat Q 27] [OfNat Q 2] [OfNat Q 3] 
   [galr : GaloisField R] [prr : PrimeField R]
 
-instance [Curve Q R] [BEq (Point Q R)] : Add (Point Q R) where
+instance [Curve Weierstrass c Q R] [BEq (Point Weierstrass c Q R)] : Add (Point Weierstrass c Q R) where
   add x y := if x == y then dbl x else add x y
 
-instance [Curve Q R] : OfNat (Point Q R) 0 where
+instance [Curve Weierstrass c Q R] : OfNat (Point Weierstrass c Q R) 0 where
   ofNat := id
 
 open Nat in
-def mulNat [Curve Q R] (p : Curve.Point Q R) (n : Nat) : Point Q R :=
+def mulNat [Curve Weierstrass c Q R] (p : Curve.Point Weierstrass c Q R) (n : Nat) : Point Weierstrass c Q R :=
   match h : n with
     | 0 => id
     | (Nat.succ k) =>
@@ -57,15 +70,15 @@ def mulNat [Curve Q R] (p : Curve.Point Q R) (n : Nat) : Point Q R :=
         if isEven n then p' else add p p'
     termination_by _ => n
 
-def mul' [Curve Q R] (p : Point Q R) (n : Int) : Point Q R :=
+def mul' [Curve Weierstrass c Q R] (p : Point Weierstrass c Q R) (n : Int) : Point Weierstrass c Q R :=
   match n with
     | (n : Nat) => mulNat p n
     | (Int.negSucc n) => inv $ mulNat p n
 
-instance [Curve Q R] : HPow (Point Q R) Int (Point Q R) where
+instance [Curve Weierstrass c Q R] : HPow (Point Weierstrass c Q R) Int (Point Weierstrass c Q R) where
   hPow := mul'
 
-instance [Curve Q R] [BEq (Point Q R)] : Sub (Point Q R) where
+instance [Curve Weierstrass c Q R] [BEq (Point Weierstrass c Q R)] : Sub (Point Weierstrass c Q R) where
   sub a b := a + (Curve.inv b)
 
 inductive ProjectivePoint (Q : Type _) (R : Type _) where
@@ -80,11 +93,11 @@ instance prEq [OfNat Q 0] [BEq Q] : BEq (ProjectivePoint Q R) where
 namespace ProjectiveCurves
 
 class WPCurve (Q : Type _) (R : Type _) [GaloisField Q] [GaloisField R] [PrimeField R]
-      [Curve Q R] where
+      [Curve Weierstrass Projective Q R] where
   gP : ProjectivePoint Q R
 
-instance [PrimeField R] [PrimeField Q] [Curve Q R] [WCurve Q R] [WPCurve Q R] 
-         [BEq Q] : Curve Q R where
+instance [PrimeField R] [PrimeField Q] [Curve Weierstrass Projective Q R] [WCurve Projective Q R] [WPCurve Q R] 
+         [BEq Q] : Curve Weierstrass Projective Q R where
   Point := ProjectivePoint Q R
   add p₁ p₂ :=
     match (p₁, p₂) with
@@ -106,29 +119,29 @@ instance [PrimeField R] [PrimeField Q] [Curve Q R] [WCurve Q R] [WPCurve Q R]
           let y₃ := (u * (r - a)) - (vvv * y₁z₂)
           let z₃ := vvv * z₁z₂
           (.P x₃ y₃ z₃)
-  char _ := WCurve.q_ Q R
+  char _ := WCurve.q_ Projective Q R
   id := .P 0 1 0
-  cof _ := WCurve.h_ Q R
+  cof _ := WCurve.h_ Projective Q R
   isWellDefined p :=
-    let a : Q := WCurve.a_ R
-    let b : Q := WCurve.b_ R
+    let a : Q := WCurve.a_ Projective R
+    let b : Q := WCurve.b_ Projective R
     match p with
       | (.P x y z) => ((x * x) + (a * z) * z) * x == ((y * y) - (b * z) * z) * z
   inv 
     | .P x y z => .P x (-y) z
   disc _ :=
-    let a : Q := WCurve.a_ R
-    let b : Q := WCurve.b_ R
+    let a : Q := WCurve.a_ Projective R
+    let b : Q := WCurve.b_ Projective R
     (((4 * a) * a) * a) + ((27 * b) * a)
   frob
     | .P x y z => .P (galq.frob x) (galq.frob y) (galq.frob z)
-  order _ := WCurve.r_ Q R
+  order _ := WCurve.r_ Projective Q R
   dbl
     | (.P x y z) => 
     if z == 0 
     then .P 1 0 1 
     else
-    let a : Q := WCurve.a_ R
+    let a : Q := WCurve.a_ Projective R
     let xx := x * x
     let zz := z * z
     let w := (a * zz) + (3 * xx)
@@ -146,8 +159,8 @@ instance [PrimeField R] [PrimeField Q] [Curve Q R] [WCurve Q R] [WPCurve Q R]
   gen := WPCurve.gP
   point x y := 
     let p : ProjectivePoint Q R := .P x y 1
-    let a : Q := WCurve.a_ R
-    let b : Q := WCurve.b_ R
+    let a : Q := WCurve.a_ Projective R
+    let b : Q := WCurve.b_ Projective R
     if ((x * x) + (a * 1) * 1) * x == ((y * y) - (b * 1) * 1) * 1 then .some p else none
 
 end ProjectiveCurves
@@ -163,11 +176,11 @@ inductive AffinePoint (Q : Type _) (R : Type _) where
 
 class WACurve (Q : Type _) (R : Type _) 
       [GaloisField Q] [GaloisField R] [PrimeField R]
-      [Curve Q R] [WCurve Q R] where
+      [Curve Weierstrass Affine Q R] [WCurve Affine Q R] where
   -- curve generator
   gA_ : AffinePoint Q R
 
-instance [Curve Q R] [w : WCurve Q R] [WACurve Q R] [BEq Q] : Curve Q R where
+instance [Curve Weierstrass Affine Q R] [w : WCurve Affine Q R] [WACurve Q R] [BEq Q] : Curve Weierstrass Affine Q R where
   Point := AffinePoint Q R
   char _ := w.q_
   cof _ := w.h_
