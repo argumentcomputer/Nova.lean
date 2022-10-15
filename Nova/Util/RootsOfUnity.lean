@@ -50,4 +50,6 @@ def isPrimitiveRootOfUnity (r : RootsOfUnity n K) : Bool :=
     | .U x =>
         isRootOfUnity r && not (List.any (List.iota $ cardinality r - 1) (isUnity x))
 
+def toU (k : K) : RootsOfUnity n K := .U k
+
 end RootsOfUnity

@@ -51,6 +51,10 @@ def galPow [GaloisField K] : K → Nat → K
 instance [GaloisField K] : HPow K Nat K where
   hPow := galPow
 
+instance [GaloisField K] : Neg K where
+  neg x := 0 - x
+
+
 variable [gal : GaloisField K]
 
 -- Order p^q of field.

@@ -8,20 +8,18 @@ namespace Pairing
 class Pairing (G₁ : Type _) (G₂ : Type _) (Gₜ : Type _) where
   e : G₁ → G₂ → Gₜ
 
-open EllipticCurves Weierstrass AffineCurves
+open EllipticCurves Weierstrass AffineCurves GaloisField
 
 class ECPairing (q : Nat) (r : Nat) (U : Type _) (V : Type _) (W : Type _)
   [Curve (Zmod q) (Zmod r)]
   [GaloisField (Extension U (Zmod q))]
   [WCurve (Zmod q) (Zmod r)]
   [WACurve (Zmod q) (Zmod r)]
-  [ECPairingG₁ q r]
   [Curve (Extension U (Zmod q)) (Zmod r)]
   [IrreducibleMonic U (Zmod q)]
   [GaloisField (Extension V (Extension U (Zmod q)))]
   [IrreducibleMonic V (Extension U (Zmod q))]
   [IrreducibleMonic W (Extension V (Extension U (Zmod q)))]
-  [ECPairingGT q U V W]
   [IrreducibleMonic U (Zmod q)]
   [Curve (Extension U (Zmod q)) (Zmod r)]
   [WCurve (Extension U (Zmod q)) (Zmod r)]
