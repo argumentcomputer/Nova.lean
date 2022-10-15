@@ -54,7 +54,6 @@ instance [GaloisField K] : HPow K Nat K where
 instance [GaloisField K] : Neg K where
   neg x := 0 - x
 
-
 variable [gal : GaloisField K]
 
 -- Order p^q of field.

@@ -5,7 +5,7 @@ import Nova.Util.Pairing.Pairing
 
 namespace Ate
 
-variable {q r : Nat} (V U W : Type _)
+variable {q r : Nat} {V U W : Type _}
 
 open EllipticCurves Weierstrass AffineCurves GaloisField RootsOfUnity Pairing
 
@@ -21,9 +21,22 @@ variable [IrreducibleMonic W (Extension V (Extension U (Zmod q)))]
 variable [WCurve (Extension U (Zmod q)) (Zmod r)]
 variable [WACurve (Extension U (Zmod q)) (Zmod r)]
 variable [Pairing (AffinePoint (Zmod q) (Zmod r)) (AffinePoint (Extension U (Zmod q)) (Zmod r)) (RootsOfUnity r (Extension W (Extension V (Extension U (Zmod q)))))]
+variable [ECPairing q r U V W]
 
-def millerAlgorithmBLS12 [ECPairing q r U V W]
-  (x : AffinePoint (Zmod q) (Zmod r)) (y : AffinePoint (Extension U (Zmod q)) (Zmod r)) :
-  RootsOfUnity r (Extension W (Extension V (Extension U (Zmod q)))) := sorry
+def millerLoop 
+  (a : AffinePoint (Zmod q) (Zmod r)) 
+  (b : AffinePoint (Extension U (Zmod q)) (Zmod r))
+  (l : List Int)
+  (pair₁ : (AffinePoint (Extension U (Zmod q)) (Zmod r)) × (RootsOfUnity r (Extension W (Extension V (Extension U (Zmod q)))))) :
+  ((AffinePoint (Extension U (Zmod q)) (Zmod r)) × (RootsOfUnity r (Extension W (Extension V (Extension U (Zmod q)))))) := sorry
+
+
+def millerAlgorithmBLS12
+  (l : List Int) (a : AffinePoint (Zmod q) (Zmod r)) (b : AffinePoint (Extension U (Zmod q)) (Zmod r)) :
+  RootsOfUnity r (Extension W (Extension V (Extension U (Zmod q)))) :=
+    match l with
+      | x :: xs => 
+        (fun (x, y) => y) $ millerLoop a b xs (if x > 0 then b else _, _)
+      | [] => .U $ .E #[.E #[.E #[1]]]
 
 end Ate
