@@ -30,11 +30,11 @@ def _y : Extension U (Zmod Q) :=
   .E #[0xce5d527727d6e118cc9cdc6da2e351aadfd9baa8cbdd3a76d429a695160d12c923ac9cc3baca289e193548608b82801,
       0x606c4a02ea734cc32acd2b02bc28b99cb3e287e85a763af267492ab572e99ab3f370d275cec1da1aaa9075ff05f79be] 
 
-open EllipticCurves Weierstrass AffineCurves
+open EllipticCurves Weierstrass AffineCurves Coordinate Form
 
-variable [GaloisField (Extension U (Zmod Q))] [Curve (Extension U (Zmod Q)) (Zmod R)]
+variable [GaloisField (Extension U (Zmod Q))] [Curve Weierstrass Affine (Extension U (Zmod Q)) (Zmod R)]
 
-instance : WCurve (Extension U (Zmod Q)) (Zmod R) where
+instance : WCurve Affine (Extension U (Zmod Q)) (Zmod R) where
   a_ := _a
   b_ := _b
   h_ := _h

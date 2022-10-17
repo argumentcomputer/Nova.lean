@@ -5,23 +5,22 @@ import Nova.Util.Pairing.Pairing
 
 namespace Ate
 
-variable {q r : Nat} {V U W : Type _}
+variable {q r : Nat} {U V W : Type _}
 
-open EllipticCurves Weierstrass AffineCurves GaloisField RootsOfUnity Pairing
+open EllipticCurves Weierstrass AffineCurves GaloisField RootsOfUnity Pairing Form Coordinate
 
-variable [Curve (Zmod q) (Zmod r)]
+variable [Curve Weierstrass Affine (Zmod q) (Zmod r)]
 variable [GaloisField (Extension U (Zmod q))]
-variable [WCurve (Zmod q) (Zmod r)]
+variable [WCurve Affine (Zmod q) (Zmod r)]
 variable [WACurve (Zmod q) (Zmod r)]
-variable [cur : Curve (Extension U (Zmod q)) (Zmod r)]
+variable [cur : Curve Weierstrass Affine (Extension U (Zmod q)) (Zmod r)]
 variable [IrreducibleMonic U (Zmod q)]
 variable [GaloisField (Extension V (Extension U (Zmod q)))]
 variable [IrreducibleMonic V (Extension U (Zmod q))]
 variable [IrreducibleMonic W (Extension V (Extension U (Zmod q)))]
-variable [WCurve (Extension U (Zmod q)) (Zmod r)]
+variable [WCurve Affine (Extension U (Zmod q)) (Zmod r)]
 variable [WACurve (Extension U (Zmod q)) (Zmod r)]
 variable [Pairing (AffinePoint (Zmod q) (Zmod r)) (AffinePoint (Extension U (Zmod q)) (Zmod r)) (RootsOfUnity r (Extension W (Extension V (Extension U (Zmod q)))))]
-variable [ECPairing q r U V W]
 
 def millerLoop
   (a : AffinePoint (Zmod q) (Zmod r)) 
