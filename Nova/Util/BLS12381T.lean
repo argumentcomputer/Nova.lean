@@ -32,6 +32,8 @@ def _y : Extension U (Zmod Q) :=
 
 open EllipticCurves Weierstrass AffineCurves Coordinate Form
 
+#check AffinePoint
+
 variable [GaloisField (Extension U (Zmod Q))] [Curve Weierstrass Affine (Extension U (Zmod Q)) (Zmod R)]
 
 instance : WCurve Affine (Extension U (Zmod Q)) (Zmod R) where
