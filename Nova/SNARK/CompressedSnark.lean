@@ -1,0 +1,3 @@
+namespace CompressedSnark
+
+end CompressedSnark
