@@ -1,3 +1,0 @@
-namespace NovaImplementation
-
-end NovaImplementation

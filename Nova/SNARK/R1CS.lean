@@ -9,6 +9,13 @@ variable (PreprocessedGroupElement : Type _ → Type _)
 structure R1CSGens (G : Type _) where
   gens : CommitGens PreprocessedGroupElement G
 
+structure RelaxedR1CSWitness (G : Type _) where
+  W : Commitment G
+  E : Commitment G
+
+structure R1CSWitness (G : Type _) where
+  W : Commitment G
+
 structure RelaxedR1CSInstance (G : Type _) where
   comm_W : Commitment G
   comm_E : Commitment G
