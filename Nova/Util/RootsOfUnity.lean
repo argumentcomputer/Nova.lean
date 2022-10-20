@@ -2,6 +2,9 @@ import Nova.Util.GaloisField
 
 namespace RootsOfUnity
 
+class CyclicSubgroup (G : Type _) where
+  g : G
+
 -- n-th roots of unity of Galois fields
 inductive RootsOfUnity (n : Nat) (A : Type _) where
   | U : A → RootsOfUnity n A
@@ -22,9 +25,7 @@ instance [Div A] : Div (RootsOfUnity n A) where
 
 open GaloisField
 
-variable {K : Type} [add : Add K] [mul : Mul K] 
-         [sub : Sub K] [div : Div K] [gal : GaloisField K]
-         [HPow K Nat K] [BEq K] [OfNat K 1]
+variable {K : Type} [gal : GaloisField K] [HPow K Nat K] [BEq K]
 
 -- Cardinality of the subgroup
 def cardinality : RootsOfUnity n K → Nat := fun _ => n
@@ -32,7 +33,7 @@ def cardinality : RootsOfUnity n K → Nat := fun _ => n
 -- Cofactor of the subgroup in the group.
 def cofactor : RootsOfUnity n K → Nat := 
   let ord := @order K gal
-  (fun x => ord / x) ∘ cardinality
+  (fun x => ord 1 / x) ∘ cardinality
 
 -- isUnity checks is a given element of a Galois field is unity
 def isUnity (k : K) (n : Nat) : Bool :=
@@ -48,5 +49,7 @@ def isPrimitiveRootOfUnity (r : RootsOfUnity n K) : Bool :=
   match r with
     | .U x =>
         isRootOfUnity r && not (List.any (List.iota $ cardinality r - 1) (isUnity x))
+
+def toU (k : K) : RootsOfUnity n K := .U k
 
 end RootsOfUnity
