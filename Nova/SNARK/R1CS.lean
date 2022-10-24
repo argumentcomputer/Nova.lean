@@ -4,10 +4,8 @@ open Commitments
 
 namespace R1CS
 
-variable (PreprocessedGroupElement : Type _ → Type _)
-
 structure R1CSGens (G : Type _) where
-  gens : CommitGens PreprocessedGroupElement G
+  gens : CommitGens G
 
 structure RelaxedR1CSWitness (G : Type _) where
   W : Commitment G
@@ -34,5 +32,13 @@ structure R1CSShape (G : Type _) where
   B : Array G
   C : Array G
   digest : G
+
+-- Returns the number of constraints in the primary and secondary circuits
+def num_constraints (shape₁ : R1CSShape G₁) (shape₂ : R1CSShape G₂) : USize × USize :=
+  (shape₁.num_cons, shape₂.num_cons)
+
+-- Returns the number of variables in the primary and secondary circuits
+def num_variables (shape₁ : R1CSShape G₁) (shape₂ : R1CSShape G₂) : USize × USize :=
+  (shape₁.num_vars, shape₂.num_vars)
 
 end R1CS

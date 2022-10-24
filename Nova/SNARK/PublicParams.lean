@@ -7,8 +7,6 @@ open Circuit Commitments R1CS
 
 namespace PublicParams
 
-variable (PreprocessedGroupElement : Type _ → Type _)
-
 structure PublicParams 
   (G₁ : Type _) (G₂ : Type _)
   (C₁ : Type _) (C₂ : Type _) where
@@ -17,12 +15,12 @@ structure PublicParams
   --ro_consts_primary : ROConstants G₁
   --ro_consts_circuit_primary : ROConstantsCircuit G₂
   
-  r1cs_gens_primary : R1CSGens PreprocessedGroupElement G₁
+  r1cs_gens_primary : R1CSGens G₁
   r1cs_shape_primary : R1CSShape G₁
   r1cs_shape_padded_primary : R1CSShape G₁
   --ro_consts_secondary : ROConstants G₂
   --ro_consts_circuit_secondary : ROConstantsCircuit G₁
-  r1cs_gens_secondary : R1CSGens PreprocessedGroupElement G₁
+  r1cs_gens_secondary : R1CSGens G₁
   r1cs_shape_secondary  : R1CSShape G₁
   r1cs_shape_padded_secondary : R1CSShape G₁
   augmented_circuit_params_primary : NovaAugmentedCircuitParams
