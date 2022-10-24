@@ -156,4 +156,14 @@ instance [GaloisField L] [GaloisField K] [IrreducibleMonic P K]
          [t₂ : TowerOfFields L (Extension P L)] : TowerOfFields K (Extension P L) where
   embed := t₂.embed ∘ t₁.embed
 
+-- fields with square roots
+inductive LegendreSymbol where
+  | Zero
+  | QuadraticResidue
+  | QuadraticNonResidue
+
+class SqrtField (F : Type _) where
+  legendre : F → LegendreSymbol
+  sqrt : F → Option F
+
 end GaloisField
