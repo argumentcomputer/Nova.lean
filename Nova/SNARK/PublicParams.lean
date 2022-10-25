@@ -34,4 +34,10 @@ def augmented_circuit_params_primary : NovaAugmentedCircuitParams :=
 def augmented_circuit_params_secondary : NovaAugmentedCircuitParams :=
   NovaAugmentedCircuitParams.mk BN_LIMB_WIDTH BN_N_LIMBS true
 
+-- create a new PublicParams
+
+-- initialise gens for the primary circuit
+
+-- initialise gens for the secondary circuit
+
 end PublicParams

@@ -1,4 +1,4 @@
-inductive Errors : Type _ where
+inductive Error : Type where
   | InvalidIndex
   | OddInputLength
   | InvalidInputLength
@@ -11,3 +11,12 @@ inductive Errors : Type _ where
   | InvalidSumcheckProof
   | InvalidInitialInputLength
   | InvalidStepOutputLength
+
+inductive SynthesisError : Type where
+  | AssignmentMissing : SynthesisError
+  | DivisionByZero : SynthesisError
+  | Unsatisfiable : SynthesisError
+  | PolynomialDegreeTooLarge : SynthesisError
+  | UnexpectedIdentity : SynthesisError
+  | IoError : Error → SynthesisError
+  | UnconstrainedVariable : SynthesisError
