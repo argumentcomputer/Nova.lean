@@ -9,12 +9,12 @@ class StepCircuit (F : Type _) where
 -- (this method is called only at circuit synthesis time)
 -- synthesize and output methods are expected to take as
 -- input a vector of size equal to arity and output a vector of size equal to arity  
-  arity : F → USize
+  arity : USize
 -- Sythesize the circuit for a computation step and return variable
 -- that corresponds to the output of the step z
-  synthesise : F → List F → Either (Array F) SynthesisError
+  synthesise : List F → Either (Array F) SynthesisError
 -- return the output of the step when provided with the step's input
-  output : F → List F → Array F
+  output : List F → Array F
 
 structure NovaAugmentedCircuitParams where
   limb_width : USize

@@ -7,9 +7,7 @@ open Circuit Commitments R1CS
 
 namespace PublicParams
 
-structure PublicParams 
-  (G₁ : Type _) (G₂ : Type _)
-  (C₁ : Type _) (C₂ : Type _) where
+structure PublicParams (G₁ : Type _) (G₂ : Type _) where
   F_arity_primary : USize
   F_arity_secondary : USize
   --ro_consts_primary : ROConstants G₁
@@ -25,19 +23,30 @@ structure PublicParams
   r1cs_shape_padded_secondary : R1CSShape G₁
   augmented_circuit_params_primary : NovaAugmentedCircuitParams
   augmented_circuit_params_secondary : NovaAugmentedCircuitParams
-  _p_c1 : C₁
-  _p_c2 : C₂
 
-def augmented_circuit_params_primary : NovaAugmentedCircuitParams :=
+variable {G₁ G₂ : Type _} 
+variable [c_primary : StepCircuit G₁] [c_secondary : StepCircuit G₂]
+variable [cs : NovaShape G₁]
+
+def setup : PublicParams G₁ G₂ :=
+  let F_arity_primary : USize := c_primary.arity
+  let F_arity_secondary : USize := c_secondary.arity
+  let (r1cs_shape_primary, r1cs_gens_primary) := (cs.r1cs_shape, cs.r1cs_gens)
+  let (r1cs_shape_secondary, r1cs_gens_secondary) := (cs.r1cs_shape, cs.r1cs_gens)
+  let augmented_circuit_params_primary : NovaAugmentedCircuitParams :=
   NovaAugmentedCircuitParams.mk BN_LIMB_WIDTH BN_N_LIMBS true
-
-def augmented_circuit_params_secondary : NovaAugmentedCircuitParams :=
+  let augmented_circuit_params_secondary : NovaAugmentedCircuitParams :=
   NovaAugmentedCircuitParams.mk BN_LIMB_WIDTH BN_N_LIMBS true
-
--- create a new PublicParams
-
--- initialise gens for the primary circuit
-
--- initialise gens for the secondary circuit
+  PublicParams.mk 
+    F_arity_primary 
+    F_arity_secondary 
+    r1cs_gens_primary
+    r1cs_shape_primary 
+    r1cs_shape_primary 
+    r1cs_gens_secondary 
+    r1cs_shape_secondary
+    r1cs_shape_secondary 
+    augmented_circuit_params_primary
+    augmented_circuit_params_secondary 
 
 end PublicParams

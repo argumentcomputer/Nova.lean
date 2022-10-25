@@ -41,4 +41,11 @@ def num_constraints (shape₁ : R1CSShape G₁) (shape₂ : R1CSShape G₂) : US
 def num_variables (shape₁ : R1CSShape G₁) (shape₂ : R1CSShape G₂) : USize × USize :=
   (shape₁.num_vars, shape₂.num_vars)
 
+-- `NovaShape` provides methods for acquiring `R1CSShape` and `R1CSGens` from implementers.
+class NovaShape (G : Type _) where
+-- Return an appropriate `R1CSShape` struct
+  r1cs_shape : R1CSShape G
+-- Return an appropriate `R1CSGens` struct
+  r1cs_gens : R1CSGens G
+
 end R1CS
