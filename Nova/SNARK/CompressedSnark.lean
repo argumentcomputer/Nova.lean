@@ -2,8 +2,6 @@ import Nova.SNARK.Commitments
 import Nova.SNARK.NIFS
 import Nova.SNARK.R1CS
 
-open Commitments NIFS R1CS
-
 namespace CompressedSnark
 
 structure CompressedSnark 
@@ -24,6 +22,5 @@ structure CompressedSnark
   zn_secondary : Array G₂
   _p_c1 : C₁
   _p_c2 : C₂
-
 
 end CompressedSnark

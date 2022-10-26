@@ -3,10 +3,6 @@ import Nova.SNARK.Commitments
 import Nova.SNARK.Constraints
 import Nova.SNARK.R1CS
 
-open Circuit Commitments R1CS
-
-namespace PublicParams
-
 structure PublicParams (G₁ : Type _) (G₂ : Type _) where
   F_arity_primary : USize
   F_arity_secondary : USize
@@ -38,7 +34,7 @@ def setup : PublicParams G₁ G₂ :=
   let augmented_circuit_params_secondary : NovaAugmentedCircuitParams :=
   NovaAugmentedCircuitParams.mk BN_LIMB_WIDTH BN_N_LIMBS true
   PublicParams.mk 
-    F_arity_primary 
+    F_arity_primary
     F_arity_secondary 
     r1cs_gens_primary
     r1cs_shape_primary 
@@ -48,5 +44,3 @@ def setup : PublicParams G₁ G₂ :=
     r1cs_shape_secondary 
     augmented_circuit_params_primary
     augmented_circuit_params_secondary 
-
-end PublicParams

@@ -1,8 +1,5 @@
 import Nova.SNARK.Commitments
-
-open Commitments
-
-namespace R1CS
+import YatimaStdLib.Either
 
 structure R1CSGens (G : Type _) where
   gens : CommitGens G
@@ -48,4 +45,9 @@ class NovaShape (G : Type _) where
 -- Return an appropriate `R1CSGens` struct
   r1cs_gens : R1CSGens G
 
-end R1CS
+-- `NovaWitness` provide a method for acquiring an `R1CSInstance` and `R1CSWitness` from implementers.
+class NovaWitness (G : Type _) where
+  r1cs_instance_and_witness 
+    : R1CSShape G 
+    → R1CSGens G 
+    → Either Error (R1CSInstance G × R1CSWitness G)

@@ -1,5 +1,3 @@
-namespace Commitments
-
 structure Commitment (G : Type _) where
   comm : G
 
@@ -9,5 +7,3 @@ structure CommitGens (G : Type _) where
 
 structure CompressedCommitment (C : Type _) where
   comm : C
-
-end Commitments
