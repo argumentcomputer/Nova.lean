@@ -5,11 +5,11 @@ structure R1CSGens (G : Type _) where
   gens : CommitGens G
 
 structure RelaxedR1CSWitness (G : Type _) where
-  W : Commitment G
-  E : Commitment G
+  W : Array G
+  E : Array G
 
 structure R1CSWitness (G : Type _) where
-  W : Commitment G
+  W : Array G
 
 structure RelaxedR1CSInstance (G : Type _) where
   comm_W : Commitment G
@@ -37,6 +37,25 @@ def num_constraints (shape₁ : R1CSShape G₁) (shape₂ : R1CSShape G₂) : US
 -- Returns the number of variables in the primary and secondary circuits
 def num_variables (shape₁ : R1CSShape G₁) (shape₂ : R1CSShape G₂) : USize × USize :=
   (shape₁.num_vars, shape₂.num_vars)
+
+-- Initialises a new RelaxedR1CSInstance from an R1CSInstance
+def from_r1cs_instance [OfNat G 1] (gen : R1CSGens G)
+                       (inst : R1CSInstance G) : RelaxedR1CSInstance G :=
+  RelaxedR1CSInstance.mk inst.comm_W (Commitment.mk gen.gens._p) inst.X (1 : G)
+
+variable [OfNat G 0] [Coe USize G]
+
+-- Initialises a new RelaxedR1CSWitness from an R1CSWitness
+def from_r1cs_witness (S : R1CSShape G) (witness : R1CSWitness G)  : RelaxedR1CSWitness G :=
+  RelaxedR1CSWitness.mk witness.W #[0, S.num_cons]
+
+-- Produces a default RelaxedR1CSWitness given an R1CSShape
+def default_relaxed_r1cs_witness (s : R1CSShape G) : RelaxedR1CSWitness G :=
+  RelaxedR1CSWitness.mk #[0, s.num_vars] #[0, s.num_cons]
+
+-- Produces a default RelaxedR1CSInstance given R1CSGens and R1CSShape
+def default_relaxed_r1cs_instance (s : R1CSShape G) : RelaxedR1CSInstance G :=
+  RelaxedR1CSInstance.mk (Commitment.mk 0) (Commitment.mk 0) #[0, s.num_io] 0
 
 -- `NovaShape` provides methods for acquiring `R1CSShape` and `R1CSGens` from implementers.
 class NovaShape (G : Type _) where

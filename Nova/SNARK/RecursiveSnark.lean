@@ -21,8 +21,9 @@ structure RecursiveSnark
   zi_primary : Array G₁
   zi_secondary : Array G₂
 
-variable {G₁ G₂ : Type _} [c_primary : StepCircuit G₁] [c_secondary : StepCircuit G₁]
-variable [OfNat G₁ 0] [OfNat G₁ 1] [OfNat G₂ 1] [wit : NovaWitness G₁]
+variable {G₁ G₂ : Type _} [c_primary : StepCircuit G₁] [c_secondary : StepCircuit G₂]
+variable [OfNat G₁ 0] [OfNat G₁ 1] [OfNat G₂ 1] [wit : NovaWitness G₁] [wit' : NovaWitness G₂] [OfNat G₂ 0]
+variable [Coe USize G₁] [Coe USize G₂]
 
 -- Create a new `RecursiveSNARK` (or updates the provided `RecursiveSNARK`)
 -- by executing a step of the incremental computation
@@ -30,17 +31,17 @@ def proof_step
   (pp : PublicParams G₁ G₂)
   (recursive_snark : Option (RecursiveSnark G₁ G₂))
   (z₀_primary : Array G₁)
-  (z₀_secondary : Array G₂) : Either Error (RecursiveSnark G₁ G₂) :=
+  (z₀_secondary : Array G₂) : Either Error (RecursiveSnark G₁ G₂) := do
   if z₀_primary.size != pp.F_arity_primary.val || z₀_secondary.size != pp.F_arity_secondary.val
   then .left Error.InvalidInitialInputLength
-  else
     match recursive_snark with
       | .none =>
       -- base case for the primary
       let cs_primary : SatisfyingAssignment G₁ := newSatisfyingAssignment
+      -- TODO: rewrite inputs_primary properly
       let inputs_primary : NovaAugmentedCircuitInputs G₁ :=
         NovaAugmentedCircuitInputs.mk 
-          pp.r1cs_shape_secondary.digest 
+          pp.r1cs_shape_primary.digest 
           0 
           z₀_primary
           .none 
@@ -48,14 +49,47 @@ def proof_step
           .none 
           .none
       let circuit_primary : NovaAugmentedCircuit G₁ :=
-        NovaAugmentedCircuit.mk pp.augmented_circuit_params_primary (.some $ inputs_primary) c_primary
+        NovaAugmentedCircuit.mk pp.augmented_circuit_params_primary (.some inputs_primary) c_primary
       let shape_and_wit : Either Error (R1CSInstance G₁ × R1CSWitness G₁) := 
         wit.r1cs_instance_and_witness pp.r1cs_shape_primary pp.r1cs_gens_primary
-      -- TODO: extract (u_primary, w_primary) from shape_and_wit
-
+      let (u_primary, w_primary) ← shape_and_wit
+      
       -- base case for the secondary
-      let cs_secondary : SatisfyingAssignment G₂ := newSatisfyingAssignment
-      RecursiveSnark.mk _ _ _ _ _ _ _ _ _ _ _
+      let cs_secondary : SatisfyingAssignment G₁ := newSatisfyingAssignment
+      -- TODO: rewrite inputs_secondary properly
+      let inputs_secondary :=
+        NovaAugmentedCircuitInputs.mk 
+          pp.r1cs_shape_primary.digest 
+          (0 : G₁)
+          z₀_primary
+          .none
+          .none
+          (.some u_primary)
+          .none
+      let circuit_secondary : NovaAugmentedCircuit G₁ := 
+        NovaAugmentedCircuit.mk pp.augmented_circuit_params_secondary (.some inputs_secondary) c_primary
+      let (u_secondary, w_secondary) ← wit'.r1cs_instance_and_witness pp.r1cs_shape_secondary pp.r1cs_gens_secondary
+      let r_W_primary := from_r1cs_witness pp.r1cs_shape_primary w_primary
+      let r_U_primary := from_r1cs_instance pp.r1cs_gens_primary u_primary
+      let r_W_secondary := default_relaxed_r1cs_witness pp.r1cs_shape_secondary
+      let r_U_secondary := default_relaxed_r1cs_instance pp.r1cs_shape_secondary
+      let zi_primary := c_primary.output z₀_primary
+      let zi_secondary := c_secondary.output z₀_secondary
+      if z₀_primary.size != pp.F_arity_primary.val || z₀_secondary.size != pp.F_arity_secondary.val
+      then .left Error.InvalidStepOutputLength
+      else
+      .right $ RecursiveSnark.mk
+                r_W_primary 
+                r_U_primary 
+                w_primary 
+                u_primary 
+                r_W_secondary 
+                r_U_secondary 
+                w_secondary
+                u_secondary
+                1
+                zi_primary
+                zi_secondary
       | .some _ =>
       RecursiveSnark.mk _ _ _ _ _ _ _ _ _ _ _
 

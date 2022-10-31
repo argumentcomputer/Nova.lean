@@ -12,9 +12,9 @@ class StepCircuit (F : Type _) where
   arity : USize
 -- Sythesize the circuit for a computation step and return variable
 -- that corresponds to the output of the step z
-  synthesise : List F → Either SynthesisError (Array F)
+  synthesise : Array F → Either SynthesisError (Array F)
 -- return the output of the step when provided with the step's input
-  output : List F → Array F
+  output : Array F → Array F
 
 structure NovaAugmentedCircuitParams where
   limb_width : USize
