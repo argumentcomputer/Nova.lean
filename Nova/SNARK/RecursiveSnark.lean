@@ -50,9 +50,7 @@ def proof_step
           .none
       let circuit_primary : NovaAugmentedCircuit G₁ :=
         NovaAugmentedCircuit.mk pp.augmented_circuit_params_primary (.some inputs_primary) c_primary
-      let shape_and_wit : Either Error (R1CSInstance G₁ × R1CSWitness G₁) := 
-        wit.r1cs_instance_and_witness pp.r1cs_shape_primary pp.r1cs_gens_primary
-      let (u_primary, w_primary) ← shape_and_wit
+      let (u_primary, w_primary) ← wit.r1cs_instance_and_witness pp.r1cs_shape_primary pp.r1cs_gens_primary
       
       -- base case for the secondary
       let cs_secondary : SatisfyingAssignment G₁ := newSatisfyingAssignment
@@ -90,8 +88,23 @@ def proof_step
                 1
                 zi_primary
                 zi_secondary
-      | .some _ =>
-      RecursiveSnark.mk _ _ _ _ _ _ _ _ _ _ _
+      | .some r_snark => do
+      let (l_u_primary, l_w_primary) ← wit.r1cs_instance_and_witness pp.r1cs_shape_primary pp.r1cs_gens_primary
+      let zi_primary := c_primary.output z₀_primary
+      let zi_secondary := c_secondary.output z₀_secondary
+      let (l_u_secondary, l_w_secondary) ← wit'.r1cs_instance_and_witness pp.r1cs_shape_secondary pp.r1cs_gens_secondary
+      .right $ RecursiveSnark.mk 
+                 _
+                 _
+                 l_w_primary
+                 l_u_primary
+                 _
+                 _
+                 l_w_secondary
+                 l_u_secondary
+                 (r_snark.i + 1)
+                 zi_primary
+                 zi_secondary
 
 -- verify
 

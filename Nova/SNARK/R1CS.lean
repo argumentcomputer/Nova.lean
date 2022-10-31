@@ -64,6 +64,22 @@ class NovaShape (G : Type _) where
 -- Return an appropriate `R1CSGens` struct
   r1cs_gens : R1CSGens G
 
+-- Folds an incoming R1CSWitness into the current one
+def R1CSWitness.fold (w₂ : R1CSWitness G) (t : Array G) (r : G) : Either Error (RelaxedR1CSWitness G)
+  := sorry
+-- TODO: complete it
+
+def R1CSInstance.fold (u₂ : R1CSInstance G) (comm_T : Commitment G) (r : G) :  Either Error (RelaxedR1CSInstance G) :=
+  sorry
+-- TODO: complete it
+
+-- A method to compute a commitment to the cross-term `T` given a
+-- Relaxed R1CS instance-witness pair and an R1CS instance-witness pair
+def R1CSGens.commit_T (gen : R1CSGens G) (u₁ : RelaxedR1CSInstance G)
+                      (w₁ : RelaxedR1CSWitness G) (u₂ : R1CSInstance G) (w₂ : R1CSWitness G) :
+                      Either Error (Array G × Commitment G) := sorry
+-- TODO: complete it
+
 -- `NovaWitness` provide a method for acquiring an `R1CSInstance` and `R1CSWitness` from implementers.
 class NovaWitness (G : Type _) where
   r1cs_instance_and_witness 
