@@ -1,5 +1,6 @@
 import Nova.BellPerson.Solver
 import Nova.SNARK.Errors
+import Nova.SNARK.NIFS
 import Nova.SNARK.PublicParams
 import Nova.SNARK.R1CS
 import Nova.SNARK.Circuit
@@ -93,13 +94,30 @@ def proof_step
       let zi_primary := c_primary.output z₀_primary
       let zi_secondary := c_secondary.output z₀_secondary
       let (l_u_secondary, l_w_secondary) ← wit'.r1cs_instance_and_witness pp.r1cs_shape_secondary pp.r1cs_gens_secondary
+      let (_, r_U_secondary, r_W_secondary) ← 
+        NIFS.prove
+          pp.r1cs_gens_secondary
+          pp.r1cs_shape_secondary
+          r_snark.r_U_secondary
+          r_snark.r_W_secondary
+          r_snark.l_u_secondary
+          r_snark.l_w_secondary
+      
+      let (_, r_U_primary, r_W_primary) ←
+        NIFS.prove
+          pp.r1cs_gens_primary
+          pp.r1cs_shape_primary
+          r_snark.r_U_primary
+          r_snark.r_W_primary
+          l_u_primary
+          l_w_primary
       .right $ RecursiveSnark.mk 
-                 _
-                 _
+                 r_W_primary
+                 r_U_primary
                  l_w_primary
                  l_u_primary
-                 _
-                 _
+                 r_W_secondary
+                 r_U_secondary
                  l_w_secondary
                  l_u_secondary
                  (r_snark.i + 1)
