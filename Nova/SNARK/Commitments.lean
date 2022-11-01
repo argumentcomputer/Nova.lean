@@ -7,3 +7,6 @@ structure CommitGens (G : Type _) where
 
 structure CompressedCommitment (C : Type _) where
   comm : C
+
+def compress (c : Commitment G) : CompressedCommitment G :=
+  CompressedCommitment.mk c.comm

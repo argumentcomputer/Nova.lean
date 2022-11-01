@@ -65,11 +65,11 @@ class NovaShape (G : Type _) where
   r1cs_gens : R1CSGens G
 
 -- Folds an incoming R1CSWitness into the current one
-def R1CSWitness.fold (w₂ : R1CSWitness G) (t : Array G) (r : G) : Either Error (RelaxedR1CSWitness G)
+def R1CSWitness.fold (w₁ : RelaxedR1CSWitness G) (w₂ : R1CSWitness G) (t : Array G) (r : G) : Either Error (RelaxedR1CSWitness G)
   := sorry
 -- TODO: complete it
 
-def R1CSInstance.fold (u₂ : R1CSInstance G) (comm_T : Commitment G) (r : G) :  Either Error (RelaxedR1CSInstance G) :=
+def R1CSInstance.fold (u₁ : RelaxedR1CSInstance G) (u₂ : R1CSInstance G) (comm_T : Commitment G) (r : G) :  Either Error (RelaxedR1CSInstance G) :=
   sorry
 -- TODO: complete it
 
