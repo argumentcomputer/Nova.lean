@@ -69,9 +69,23 @@ def R1CSWitness.fold (w₁ : RelaxedR1CSWitness G) (w₂ : R1CSWitness G) (t : A
   := sorry
 -- TODO: complete it
 
-def R1CSInstance.fold (u₁ : RelaxedR1CSInstance G) (u₂ : R1CSInstance G) (comm_T : Commitment G) (r : G) :  Either Error (RelaxedR1CSInstance G) :=
-  sorry
--- TODO: complete it
+-- Folds an incoming RelaxedR1CSInstance into the current one
+def R1CSInstance.fold [Mul G] [Add G] 
+  (u₁ : RelaxedR1CSInstance G) 
+  (u₂ : R1CSInstance G) 
+  (comm_T : Commitment G) (r : G) : Either Error (RelaxedR1CSInstance G) :=
+  let (x₁, u', comm_W₁, comm_E₁) := (u₁.X, u₁.u, u₁.comm_W, u₁.comm_E)
+  let (x₂, comm_W₂) := (u₂.X, u₂.comm_W)
+  let comm_W := (comm_W₁.comm : G) + ((comm_W₂.comm : G) * r)
+  let comm_E := comm_E₁.comm + comm_T.comm * r
+  let u := u' + r
+  let x := Array.map (fun (a,b) => a + b * r) (Array.zip x₁ x₂)
+  pure $ 
+    RelaxedR1CSInstance.mk 
+      (Commitment.mk comm_W) 
+      (Commitment.mk comm_E)
+      x
+      u
 
 -- A method to compute a commitment to the cross-term `T` given a
 -- Relaxed R1CS instance-witness pair and an R1CS instance-witness pair
