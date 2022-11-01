@@ -13,7 +13,7 @@ structure NIFS (G : Type _) where
 -- a folded Relaxed R1CS instance-witness tuple `(U, W)` of the same shape `shape`,
 -- with the guarantee that the folded witness `W` satisfies the folded instance `U`
 -- if and only if `W1` satisfies `U1` and `W2` satisfies `U2`.
-def NIFS.prove [Inhabited G] [ROCircuitClass G] (gen : R1CSGens G) (s : R1CSShape G) 
+def NIFS.prove [Inhabited G] [Mul G] [Add G] [ROCircuitClass G] (gen : R1CSGens G) (s : R1CSShape G) 
                (u₁ : RelaxedR1CSInstance G) (w₁ : RelaxedR1CSWitness G)
                (u₂ : R1CSInstance G) (w₂ : R1CSWitness G) : 
                Either NovaError (NIFS G × RelaxedR1CSInstance G × RelaxedR1CSWitness G) := do

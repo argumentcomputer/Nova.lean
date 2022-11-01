@@ -1,4 +1,5 @@
 import Nova.SNARK.Commitments
+import Nova.SNARK.Errors
 import YatimaStdLib.Either
 
 structure R1CSGens (G : Type _) where
@@ -65,12 +66,20 @@ class NovaShape (G : Type _) where
   r1cs_gens : R1CSGens G
 
 -- Folds an incoming R1CSWitness into the current one
-def R1CSWitness.fold (w₁ : RelaxedR1CSWitness G) (w₂ : R1CSWitness G) (t : Array G) (r : G) : Either Error (RelaxedR1CSWitness G)
-  := sorry
--- TODO: complete it
+def R1CSWitness.fold [Mul G] [Add G] 
+    (w₁ : RelaxedR1CSWitness G) 
+    (w₂ : R1CSWitness G) 
+    (t : Array G) (r : G) : Either Error (RelaxedR1CSWitness G) :=
+    let (w₁, e₁) := (w₁.W, w₁.E)
+    let w₂ := w₂.W
+    if w₁.size != w₂.size then (.left Error.InvalidWitnessLength) 
+    else
+      let w := Array.map (fun (a, b) => a + b * r) (Array.zip w₁ w₂)
+      let e := Array.map (fun (a, b) => a + b * r) (Array.zip e₁ t)
+      pure $ RelaxedR1CSWitness.mk w e
 
 -- Folds an incoming RelaxedR1CSInstance into the current one
-def R1CSInstance.fold [Mul G] [Add G] 
+def R1CSInstance.fold [Mul G] [Add G]
   (u₁ : RelaxedR1CSInstance G) 
   (u₂ : R1CSInstance G) 
   (comm_T : Commitment G) (r : G) : Either Error (RelaxedR1CSInstance G) :=
