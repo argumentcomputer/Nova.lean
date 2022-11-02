@@ -16,7 +16,7 @@ structure NIFS (G : Type _) where
 def NIFS.prove [Inhabited G] [Mul G] [Add G] [ROCircuitClass G] (gen : R1CSGens G) (s : R1CSShape G) 
                (u₁ : RelaxedR1CSInstance G) (w₁ : RelaxedR1CSWitness G)
                (u₂ : R1CSInstance G) (w₂ : R1CSWitness G) : 
-               Either NovaError (NIFS G × RelaxedR1CSInstance G × RelaxedR1CSWitness G) := do
+               Either Error (NIFS G × RelaxedR1CSInstance G × RelaxedR1CSWitness G) := do
   let (t, comm_T) ← R1CSGens.commit_T gen u₁ w₁ u₂ w₂
   let r : G := ROCircuitClass.squeeze NUM_CHALLENGE_BITS
   let u ← R1CSInstance.fold u₁ u₂ comm_T r

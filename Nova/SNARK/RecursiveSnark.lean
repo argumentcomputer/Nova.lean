@@ -24,7 +24,9 @@ structure RecursiveSnark
 
 variable {G₁ G₂ : Type _} [c_primary : StepCircuit G₁] [c_secondary : StepCircuit G₂]
 variable [OfNat G₁ 0] [OfNat G₁ 1] [OfNat G₂ 1] [wit : NovaWitness G₁] [wit' : NovaWitness G₂] [OfNat G₂ 0]
-variable [Coe USize G₁] [Coe USize G₂]
+variable [Coe USize G₁] [Coe USize G₂] 
+variable [Inhabited G₂] [Inhabited G₁] [Mul G₂] [Add G₂] 
+variable [ROCircuitClass G₂] [Mul G₁] [Add G₁] [ROCircuitClass G₁]
 
 -- Create a new `RecursiveSNARK` (or updates the provided `RecursiveSNARK`)
 -- by executing a step of the incremental computation
@@ -124,8 +126,20 @@ def proof_step
                  zi_primary
                  zi_secondary
 
--- verify
-
--- 
+-- Verify the correctness of the `RecursiveSNARK`
+def verify 
+  (self : RecursiveSnark G₁ G₂) (pp : PublicParams G₁ G₂)
+  (num_steps : USize) (z₀_primary : Array G₁) 
+  (z₀_secondary : Array G₂) : Either Error (Array G₁ × Array G₂)
+  :=
+  let bad_cases :=
+    num_steps == 0 || self.i != num_steps ||
+    self.l_u_primary.X.size != 2 ||
+    self.l_u_secondary.X.size != 2 || 
+    self.r_U_primary.X.size != 2 ||
+    self.r_U_secondary.X.size != 2
+  if bad_cases 
+  then .left Error.ProofVerifyError
+  else sorry
 
 end RecursiveSnark

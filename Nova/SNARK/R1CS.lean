@@ -98,9 +98,11 @@ def R1CSInstance.fold [Mul G] [Add G]
 
 -- A method to compute a commitment to the cross-term `T` given a
 -- Relaxed R1CS instance-witness pair and an R1CS instance-witness pair
-def R1CSGens.commit_T (gen : R1CSGens G) (u₁ : RelaxedR1CSInstance G)
-                      (w₁ : RelaxedR1CSWitness G) (u₂ : R1CSInstance G) (w₂ : R1CSWitness G) :
-                      Either Error (Array G × Commitment G) := sorry
+def R1CSGens.commit_T (gen : R1CSGens G) 
+  (u₁ : RelaxedR1CSInstance G) 
+  (w₁ : RelaxedR1CSWitness G)
+  (u₂ : R1CSInstance G) 
+  (w₂ : R1CSWitness G) : Either Error (Array G × Commitment G) := sorry
 -- TODO: complete it
 
 -- `NovaWitness` provide a method for acquiring an `R1CSInstance` and `R1CSWitness` from implementers.
