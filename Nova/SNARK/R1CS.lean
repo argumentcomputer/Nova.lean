@@ -2,26 +2,11 @@ import Nova.SNARK.Commitments
 import Nova.SNARK.Errors
 import YatimaStdLib.Either
 
+-- Public parameters for a given R1CS
 structure R1CSGens (G : Type _) where
   gens : CommitGens G
 
-structure RelaxedR1CSWitness (G : Type _) where
-  W : Array G
-  E : Array G
-
-structure R1CSWitness (G : Type _) where
-  W : Array G
-
-structure RelaxedR1CSInstance (G : Type _) where
-  comm_W : Commitment G
-  comm_E : Commitment G
-  X : Array G
-  u : G
-
-structure R1CSInstance (G : Type _) where
-  comm_W : Commitment G
-  X : Array G
-
+-- A type that holds the shape of the R1CS matrices
 structure R1CSShape (G : Type _) where
   num_cons : USize
   num_vars : USize
@@ -30,6 +15,32 @@ structure R1CSShape (G : Type _) where
   B : Array G
   C : Array G
   digest : G
+  deriving BEq
+
+-- A type that holds a witness for a given R1CS instance
+structure R1CSWitness (G : Type _) where
+  W : Array G
+  deriving BEq
+
+-- A type that holds an R1CS instance
+structure R1CSInstance (G : Type _) where
+  comm_W : Commitment G
+  X : Array G
+  deriving BEq
+
+-- A type that holds a witness for a given Relaxed R1CS instance
+structure RelaxedR1CSWitness (G : Type _) where
+  W : Array G
+  E : Array G
+  deriving BEq
+
+-- A type that holds a Relaxed R1CS instance
+structure RelaxedR1CSInstance (G : Type _) where
+  comm_W : Commitment G
+  comm_E : Commitment G
+  X : Array G
+  u : G
+  deriving BEq
 
 -- Returns the number of constraints in the primary and secondary circuits
 def num_constraints (shape₁ : R1CSShape G₁) (shape₂ : R1CSShape G₂) : USize × USize :=
@@ -103,7 +114,7 @@ def R1CSGens.commit_T (gen : R1CSGens G)
   (w₁ : RelaxedR1CSWitness G)
   (u₂ : R1CSInstance G) 
   (w₂ : R1CSWitness G) : Either Error (Array G × Commitment G) := sorry
--- TODO: complete it
+  -- TODO: complete this sorry
 
 -- `NovaWitness` provide a method for acquiring an `R1CSInstance` and `R1CSWitness` from implementers.
 class NovaWitness (G : Type _) where

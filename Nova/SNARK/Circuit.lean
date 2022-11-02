@@ -34,6 +34,8 @@ structure NovaAugmentedCircuitInputs (G : Type _) where
   u : Option (R1CSInstance G)
   T : Option (Commitment G)
 
+-- The augmented circuit F' in Nova that includes a step circuit F
+-- and the circuit for the verifier in Nova's non-interactive folding scheme
 structure NovaAugmentedCircuit (G : Type _) where
   params : NovaAugmentedCircuitParams
   inputs : Option (NovaAugmentedCircuitInputs G)

@@ -3,6 +3,7 @@ import Nova.SNARK.Commitments
 import Nova.SNARK.Constraints
 import Nova.SNARK.R1CS
 
+-- A type that holds public parameters of Nova
 structure PublicParams (G₁ : Type _) (G₂ : Type _) where
   F_arity_primary : USize
   F_arity_secondary : USize
@@ -24,6 +25,7 @@ variable {G₁ G₂ : Type _}
 variable [c_primary : StepCircuit G₁] [c_secondary : StepCircuit G₂]
 variable [cs : NovaShape G₁] [cs2 : NovaShape G₂]
 
+-- Create a new `PublicParams`
 def setup : PublicParams G₁ G₂ :=
   let F_arity_primary : USize := c_primary.arity
   let F_arity_secondary : USize := c_secondary.arity

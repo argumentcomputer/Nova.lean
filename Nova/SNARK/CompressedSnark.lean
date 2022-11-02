@@ -4,9 +4,9 @@ import Nova.SNARK.R1CS
 
 namespace CompressedSnark
 
+-- A SNARK that proves the knowledge of a valid `RecursiveSNARK`
 structure CompressedSnark 
   (G₁ : Type _) (G₂ : Type _) 
-  (C₁ : Type _) (C₂ : Type _) 
   (S₁ : Type _) (S₂ : Type _) where
   r_U_primary : RelaxedR1CSInstance G₁
   l_u_primary : R1CSInstance G₁
@@ -20,7 +20,5 @@ structure CompressedSnark
 
   zn_primary : Array G₁
   zn_secondary : Array G₂
-  _p_c1 : C₁
-  _p_c2 : C₂
 
 end CompressedSnark

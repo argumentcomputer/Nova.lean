@@ -22,6 +22,7 @@ structure RecursiveSnark
   zi_primary : Array G₁
   zi_secondary : Array G₂
 
+-- required constraints for Recursive-snark related function
 variable {G₁ G₂ : Type _} [c_primary : StepCircuit G₁] [c_secondary : StepCircuit G₂]
 variable [OfNat G₁ 0] [OfNat G₁ 1] [OfNat G₂ 1] [wit : NovaWitness G₁] [wit' : NovaWitness G₂] [OfNat G₂ 0]
 variable [Coe USize G₁] [Coe USize G₂] 
