@@ -87,7 +87,7 @@ def R1CSWitness.fold [Mul G] [Add G]
     else
       let w := Array.map (fun (a, b) => a + b * r) (Array.zip w₁ w₂)
       let e := Array.map (fun (a, b) => a + b * r) (Array.zip e₁ t)
-      pure $ RelaxedR1CSWitness.mk w e
+      .right $ RelaxedR1CSWitness.mk w e
 
 -- Folds an incoming RelaxedR1CSInstance into the current one
 def R1CSInstance.fold [Mul G] [Add G]
@@ -100,7 +100,7 @@ def R1CSInstance.fold [Mul G] [Add G]
   let comm_E := comm_E₁.comm + comm_T.comm * r
   let u := u' + r
   let x := Array.map (fun (a,b) => a + b * r) (Array.zip x₁ x₂)
-  pure $ 
+  .right $ 
     RelaxedR1CSInstance.mk 
       (Commitment.mk comm_W) 
       (Commitment.mk comm_E)

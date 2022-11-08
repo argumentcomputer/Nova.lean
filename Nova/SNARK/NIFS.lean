@@ -2,6 +2,9 @@ import Nova.SNARK.Constraints
 import Nova.SNARK.Commitments
 import Nova.SNARK.R1CS
 import Nova.SNARK.Typeclasses
+import YatimaStdLib.Either
+
+open Either.Correctness
 
 -- A SNARK that holds the proof of a step of an incremental computation
 structure NIFS (G : Type _) where

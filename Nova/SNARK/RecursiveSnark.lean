@@ -31,6 +31,7 @@ variable [ROCircuitClass G₂] [Mul G₁] [Add G₁] [ROCircuitClass G₁]
 
 -- Create a new `RecursiveSNARK` (or updates the provided `RecursiveSNARK`)
 -- by executing a step of the incremental computation
+open Either.Correctness in
 def proof_step
   (pp : PublicParams G₁ G₂)
   (recursive_snark : Option (RecursiveSnark G₁ G₂))
