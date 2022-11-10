@@ -110,7 +110,7 @@ def R1CSInstance.fold {G : Type _} [Mul G] [Add G]
       u
   .right result
 
-rec def Array.iota (n : Nat) : Array Nat :=
+def Array.iota (n : Nat) : Array Nat :=
   match n with
     | 0 => #[0]
     | k+1 => iota k ++ #[k + 1]
