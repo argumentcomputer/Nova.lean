@@ -2,6 +2,8 @@ import Nova.SNARK.Commitments
 import Nova.SNARK.Errors
 import YatimaStdLib.Either
 
+open Either.Correctness
+
 -- Public parameters for a given R1CS
 structure R1CSGens (G : Type _) where
   gens : CommitGens G
@@ -11,9 +13,9 @@ structure R1CSShape (G : Type _) where
   num_cons : USize
   num_vars : USize
   num_io : USize
-  A : Array G
-  B : Array G
-  C : Array G
+  A : Array (USize × USize × G)
+  B : Array (USize × USize × G)
+  C : Array (USize × USize × G)
   digest : G
   deriving BEq
 
@@ -90,7 +92,7 @@ def R1CSWitness.fold [Mul G] [Add G]
       .right $ RelaxedR1CSWitness.mk w e
 
 -- Folds an incoming RelaxedR1CSInstance into the current one
-def R1CSInstance.fold [Mul G] [Add G]
+def R1CSInstance.fold {G : Type _} [Mul G] [Add G]
   (u₁ : RelaxedR1CSInstance G) 
   (u₂ : R1CSInstance G) 
   (comm_T : Commitment G) (r : G) : Either Error (RelaxedR1CSInstance G) :=
@@ -100,23 +102,76 @@ def R1CSInstance.fold [Mul G] [Add G]
   let comm_E := comm_E₁.comm + comm_T.comm * r
   let u := u' + r
   let x := Array.map (fun (a,b) => a + b * r) (Array.zip x₁ x₂)
-  .right $ 
+  let result :=
     RelaxedR1CSInstance.mk 
       (Commitment.mk comm_W) 
       (Commitment.mk comm_E)
       x
       u
+  .right result
+
+rec def Array.iota (n : Nat) : Array Nat :=
+  match n with
+    | 0 => #[0]
+    | k+1 => iota k ++ #[k + 1]
+
+def Array.join (xs : Array (Array A)) : Array A := Array.foldr (. ++ .) #[] xs
+
+def multiply_vec (self : R1CSShape G) (z : Array G) [Mul G] [Add G] : Either Error (Array G × Array G × Array G) :=
+  if z.size != self.num_io.val.val + self.num_vars.val.val + 1 
+  then .left Error.InvalidWitnessLength
+  else
+    let sparse_matrix_vec_product (M : Array (USize × USize × G)) (num_rows : USize) (z : Array G) : Array G :=
+      let vals := Array.map 
+        (fun i => 
+          let (row, col, val) := Array.getD M i (0, 0, 0)
+          (row, val * Array.getD z col.val 0)
+        ) 
+        (Array.iota M.size)
+      Array.foldr 
+        (fun (r,v) mz => Array.setD mz r.val (v + Array.getD mz r.val 0)) 
+        #[0, num_rows] 
+        vals 
+    let Az := sparse_matrix_vec_product self.A self.num_cons z
+    let Bz := sparse_matrix_vec_product self.B self.num_cons z
+    let Cz := sparse_matrix_vec_product self.C self.num_cons z
+    .right (Az, Bz, Cz)
 
 -- A method to compute a commitment to the cross-term `T` given a
 -- Relaxed R1CS instance-witness pair and an R1CS instance-witness pair
-/-
-def R1CSGens.commit_T (gen : R1CSGens G) 
+def R1CSGens.commit_T [Mul G] [Add G] [Sub G] [OfNat G 1] 
+  (self : R1CSShape G) (gen : R1CSGens G)
   (u₁ : RelaxedR1CSInstance G) 
   (w₁ : RelaxedR1CSWitness G)
   (u₂ : R1CSInstance G) 
-  (w₂ : R1CSWitness G) : Either Error (Array G × Commitment G) := sorry
+  (w₂ : R1CSWitness G) : Either Error (Array G × Commitment G) := do
+  let (aZ_1, bZ_1, cZ_1) ← multiply_vec self (Array.join #[w₁.W, #[u₁.u], u₁.X])
+  let (aZ_2, bZ_2, cZ_2) ← multiply_vec self (Array.join #[w₂.W, #[1], u₂.X])
+  let AZ_1_circ_BZ_2 :=
+    Array.map 
+      (fun i => Array.getD aZ_1 i 0 *  Array.getD bZ_2 i 0) 
+      (Array.iota aZ_1.size)
+  let AZ_2_circ_BZ_1 :=
+    Array.map
+      (fun i => Array.getD aZ_2 i 0 *  Array.getD bZ_1 i 0) 
+      (Array.iota aZ_2.size)
+  let u_1_cdot_CZ_2 :=
+    Array.map
+      (fun i => u₁.u * Array.getD cZ_2 i 0)
+      (Array.iota cZ_2.size)
+  let u_2_cdot_CZ_1 :=
+    Array.map
+      (fun i => Array.getD cZ_1 i 0)
+      (Array.iota cZ_1.size)
+  let T :=
+    Array.map (fun (a,b,c,d) => a + b - c - d)
+    (Array.zip AZ_2_circ_BZ_1
+      (Array.zip AZ_1_circ_BZ_2 
+        (Array.zip u_1_cdot_CZ_2 u_2_cdot_CZ_1)))
+  let comm_T := Commitment.mk $ 
+    Array.foldr (. + .) 0 (Array.map (fun (a, b) => a * b) (Array.zip T gen.gens.gens))
+  .right (T, comm_T)
   -- TODO: complete this sorry in a further PR
--/
 
 -- `NovaWitness` provide a method for acquiring an `R1CSInstance` and `R1CSWitness` from implementers.
 class NovaWitness (G : Type _) where
