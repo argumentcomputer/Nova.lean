@@ -43,7 +43,7 @@ def proof_step
       | .none =>
       -- base case for the primary
       let cs_primary : SatisfyingAssignment G₁ := newSatisfyingAssignment
-      -- TODO: rewrite inputs_primary properly
+      -- TODO: rewrite inputs_primary properly in further PRs
       let inputs_primary : NovaAugmentedCircuitInputs G₁ :=
         NovaAugmentedCircuitInputs.mk 
           pp.r1cs_shape_primary.digest 
@@ -59,7 +59,7 @@ def proof_step
       
       -- base case for the secondary
       let cs_secondary : SatisfyingAssignment G₁ := newSatisfyingAssignment
-      -- TODO: rewrite inputs_secondary properly
+      -- TODO: rewrite inputs_secondary properly in further PRs
       let inputs_secondary :=
         NovaAugmentedCircuitInputs.mk 
           pp.r1cs_shape_primary.digest 
@@ -129,6 +129,8 @@ def proof_step
                  zi_secondary
 
 -- Verify the correctness of the `RecursiveSNARK`
+/-
+TODO: complete this function in a further PR
 def verify 
   (self : RecursiveSnark G₁ G₂) (pp : PublicParams G₁ G₂)
   (num_steps : USize) (z₀_primary : Array G₁) 
@@ -143,5 +145,5 @@ def verify
   if bad_cases 
   then .left Error.ProofVerifyError
   else sorry
-
+-/
 end RecursiveSnark
