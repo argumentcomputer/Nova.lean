@@ -3,8 +3,8 @@ open Lake DSL
 
 package Nova
 
-@[defaultTarget]
+@[default_target]
 lean_lib Nova
 
 require YatimaStdLib from git
-  "https://github.com/yatima-inc/YatimaStdLib.lean" @ "07148ba7c40a163260cd7b3e1c76fd5ac964cb75"
+  "https://github.com/yatima-inc/YatimaStdLib.lean" @ "b6b2ff88d06b3c200b9b81aa0a0ac952c35e4631"
