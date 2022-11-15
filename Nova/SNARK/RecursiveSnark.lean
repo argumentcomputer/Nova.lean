@@ -130,8 +130,6 @@ def proofStep
                  zᵢSecondary
 
 -- Verify the correctness of the `RecursiveSNARK`
-/-
-TODO: complete this function in a further PR
 def verify 
   (self : RecursiveSnark G₁ G₂) (pp : PublicParams G₁ G₂)
   (num_steps : USize) (z₀_primary : Array G₁) 
@@ -146,5 +144,4 @@ def verify
   if bad_cases 
   then .left Error.ProofVerifyError
   else sorry
--/
 end RecursiveSnark

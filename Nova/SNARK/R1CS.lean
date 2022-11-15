@@ -1,5 +1,8 @@
 import Nova.SNARK.Commitments
 import Nova.SNARK.Errors
+import YatimaStdLib.Array
+
+open Error
 
 import YatimaStdLib.Array
 
@@ -84,7 +87,7 @@ def R1CSWitness.fold [Mul G] [Add G]
     (t : Array G) (r : G) : Except Error (RelaxedR1CSWitness G) :=
     let (w₁, e₁) := (w₁.W, w₁.E)
     let w₂ := w₂.W
-    if w₁.size != w₂.size then (.error Error.InvalidWitnessLength) 
+    if w₁.size != w₂.size then (.error InvalidWitnessLength) 
     else
       let w := Array.map (fun (a, b) => a + b * r) (Array.zip w₁ w₂)
       let e := Array.map (fun (a, b) => a + b * r) (Array.zip e₁ t)
