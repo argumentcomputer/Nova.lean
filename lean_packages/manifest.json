@@ -1,9 +1,9 @@
 {"version": 2,
  "packages":
  [{"url": "https://github.com/yatima-inc/YatimaStdLib.lean",
-   "rev": "b6b2ff88d06b3c200b9b81aa0a0ac952c35e4631",
+   "rev": "f905b68f529de2af44cf6ea63489b7e3cd090050",
    "name": "YatimaStdLib",
-   "inputRev": "b6b2ff88d06b3c200b9b81aa0a0ac952c35e4631"},
+   "inputRev": "f905b68f529de2af44cf6ea63489b7e3cd090050"},
   {"url": "https://github.com/leanprover/std4/",
    "rev": "f648e43ef696ce1cf7f6ec534ec44c06816380f9",
    "name": "std",
