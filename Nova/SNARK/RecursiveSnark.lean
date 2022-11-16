@@ -139,7 +139,11 @@ def verify
   (z₀_secondary : Array G₂) : Except Error (Array G₁ × Array G₂)
   :=
   let bad_cases :=
-    num_steps == 0 || self.i != num_steps ||
+  -- number of steps cannot be zero
+    num_steps == 0 ||
+  -- check if the provided proof has executed num_steps
+    self.i != num_steps ||
+  -- check if the (relaxed) R1CS instances have two public outputs
     self.l_u_primary.X.size != 2 ||
     self.l_u_secondary.X.size != 2 || 
     self.r_U_primary.X.size != 2 ||
@@ -147,30 +151,31 @@ def verify
   if bad_cases 
   then .left Error.ProofVerifyError
   else
+  -- check if the output hashes in R1CS instances point to the right running instances
+  -- TODO
     let hasher := NUM_FE_WITHOUT_IO_FOR_CRHF + 2 * pp.F_arity_primary
-    let res_r_primary :=
-      is_sat_relaxed
-        pp.r1cs_shape_primary
-        pp.r1cs_gens_primary
-        self.r_U_primary
-        self.r_W_primary
-    let res_l_primary :=
-      is_sat
-        pp.r1cs_shape_primary
-        pp.r1cs_gens_primary
-        self.l_u_primary
-        self.l_w_primary
-    let res_r_secondary :=
-      is_sat_relaxed
-        pp.r1cs_shape_secondary
-        pp.r1cs_gens_secondary
-        self.r_U_secondary
-        self.r_W_secondary
-    let res_l_secondary :=
-      is_sat
-        pp.r1cs_shape_secondary
-        pp.r1cs_gens_secondary
-        self.l_u_secondary
-        self.l_w_secondary
-    return res_r_primary
+  
+  -- check the satisfiability of the provided instances
+    is_sat_relaxed
+      pp.r1cs_shape_primary
+      pp.r1cs_gens_primary
+      self.r_U_primary
+      self.r_W_primary
+    is_sat
+      pp.r1cs_shape_primary
+      pp.r1cs_gens_primary
+      self.l_u_primary
+      self.l_w_primary
+    is_sat_relaxed
+      pp.r1cs_shape_secondary
+      pp.r1cs_gens_secondary
+      self.r_U_secondary
+      self.r_W_secondary
+    is_sat
+      pp.r1cs_shape_secondary
+      pp.r1cs_gens_secondary
+      self.l_u_secondary
+      self.l_w_secondary
+  
+    pure (self.zi_primary, self.zi_secondary)
 end RecursiveSnark
