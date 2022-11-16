@@ -28,6 +28,8 @@ variable [Coe USize G₁] [Coe USize G₂]
 variable [Inhabited G₂] [Inhabited G₁] [Mul G₂] [Add G₂] [Sub G₂] [Sub G₁]
 variable [ROCircuitClass G₂] [Mul G₁] [Add G₁] [ROCircuitClass G₁]
 
+open Either.Correctness
+
 -- Create a new `RecursiveSNARK` (or updates the provided `RecursiveSNARK`)
 -- by executing a step of the incremental computation
 def proofStep
@@ -131,6 +133,7 @@ def proofStep
 
 -- Verify the correctness of the `RecursiveSNARK`
 def verify 
+  [BEq G₁] [HPow G₁ G₁ G₁] [BEq G₂] [HPow G₂ G₂ G₂]
   (self : RecursiveSnark G₁ G₂) (pp : PublicParams G₁ G₂)
   (num_steps : USize) (z₀_primary : Array G₁) 
   (z₀_secondary : Array G₂) : Except Error (Array G₁ × Array G₂)
@@ -143,5 +146,31 @@ def verify
     self.r_U_secondary.X.size != 2
   if bad_cases 
   then .left Error.ProofVerifyError
-  else sorry
+  else
+    let hasher := NUM_FE_WITHOUT_IO_FOR_CRHF + 2 * pp.F_arity_primary
+    let res_r_primary :=
+      is_sat_relaxed
+        pp.r1cs_shape_primary
+        pp.r1cs_gens_primary
+        self.r_U_primary
+        self.r_W_primary
+    let res_l_primary :=
+      is_sat
+        pp.r1cs_shape_primary
+        pp.r1cs_gens_primary
+        self.l_u_primary
+        self.l_w_primary
+    let res_r_secondary :=
+      is_sat_relaxed
+        pp.r1cs_shape_secondary
+        pp.r1cs_gens_secondary
+        self.r_U_secondary
+        self.r_W_secondary
+    let res_l_secondary :=
+      is_sat
+        pp.r1cs_shape_secondary
+        pp.r1cs_gens_secondary
+        self.l_u_secondary
+        self.l_w_secondary
+    return res_r_primary
 end RecursiveSnark
