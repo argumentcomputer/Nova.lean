@@ -3,6 +3,7 @@ import Nova.SNARK.Errors
 import YatimaStdLib.Array
 
 open Error
+open Monad
 
 import YatimaStdLib.Array
 
@@ -20,6 +21,39 @@ structure R1CSShape (G : Type _) where
   C : Array (USize × USize × G)
   digest : G
   deriving BEq
+
+structure R1CSShapeSerialised where
+  num_cons : USize
+  num_vars : USize
+  num_io : USize
+  A : Array (USize × USize × Array U8)
+  B : Array (USize × USize × Array U8)
+  C : Array (USize × USize × Array U8)
+
+def R1CSShape.new [OfNat G 0]
+  (num_cons : USize) (num_vars : USize) (num_io : USize)
+  (A : Array (USize × USize × G))
+  (B : Array (USize × USize × G))
+  (C : Array (USize × USize × G)) : Either Error (R1CSShape G) := do
+  let is_valid (M : Array (USize × USize × G)) : Either Error PUnit :=
+    let sequenceUnit (i : Nat) : Either Error Unit :=
+      let (row, col, _) :=
+        Array.getD M i ((0 : USize), (0 : USize), (0 : G))
+      if row >= num_cons || col > num_io + num_vars
+      then .left InvalidIndex
+      else .right ()
+    let res' := Array.map sequenceUnit (Array.iota M.size)
+    -- let c (m : Either Error Unit) (k : Either Error Unit) := seqComp m k
+    if isError (Array.foldr seqComp (.right ()) res') then .left InvalidIndex else .right ()
+  let res_A := is_valid A
+  let res_B := is_valid B
+  let res_C := is_valid C
+  if isError res_A || isError res_B || isError res_C
+  then .left InvalidIndex
+  if num_io % 2 != 0 then .left OddInputLength
+  let digest := sorry
+  let shape := R1CSShape.mk num_cons num_vars num_io A B C digest
+  .right shape
 
 -- A type that holds a witness for a given R1CS instance
 structure R1CSWitness (G : Type _) where
