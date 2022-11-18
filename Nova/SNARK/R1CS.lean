@@ -43,8 +43,8 @@ def R1CSShape.new [OfNat G 0]
       then .left InvalidIndex
       else .right ()
     let res' := Array.map sequenceUnit (Array.iota M.size)
-    -- let c (m : Either Error Unit) (k : Either Error Unit) := seqComp m k
-    if isError (Array.foldr seqComp (.right ()) res') then .left InvalidIndex else .right ()
+    if isError (Array.foldr seqComp (.right ()) res') 
+    then .left InvalidIndex else .right ()
   let res_A := is_valid A
   let res_B := is_valid B
   let res_C := is_valid C
