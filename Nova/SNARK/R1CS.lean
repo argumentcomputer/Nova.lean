@@ -39,7 +39,7 @@ def compute_digest
   (C : Array (USize × USize × G)) : G := sorry
 
 -- Create an object of type `R1CSShape` from the explicitly specified R1CS matrices
-def R1CSShape.new [OfNat G 0]
+def R1CSShape.new [OfNat G (nat_lit 0)]
   (num_cons : USize) (num_vars : USize) (num_io : USize)
   (A : Array (USize × USize × G))
   (B : Array (USize × USize × G))
@@ -154,11 +154,11 @@ def numVariables (shape₁ : R1CSShape G₁) (shape₂ : R1CSShape G₂) : USize
   (shape₁.numVars, shape₂.numVars)
 
 -- Initialises a new RelaxedR1CSInstance from an R1CSInstance
-def fromR1CSInstance [OfNat G 1] (gen : R1CSGens G)
+def fromR1CSInstance [OfNat G (nat_lit 1)] (gen : R1CSGens G)
                        (inst : R1CSInstance G) : RelaxedR1CSInstance G :=
   RelaxedR1CSInstance.mk inst.commW (Commitment.mk gen.gens._p) inst.X (1 : G)
 
-variable [OfNat G 0] [Coe USize G]
+variable [OfNat G (nat_lit 0)] [Coe USize G]
 
 -- Initialises a new RelaxedR1CSWitness from an R1CSWitness
 def fromR1CSWitness (S : R1CSShape G) (witness : R1CSWitness G)  : RelaxedR1CSWitness G :=
@@ -233,7 +233,7 @@ def multiplyVec (self : R1CSShape G) (z : Array G) [Mul G] [Add G] : Except Erro
 
 -- A method to compute a commitment to the cross-term `T` given a
 -- Relaxed R1CS instance-witness pair and an R1CS instance-witness pair
-def R1CSGens.commitT [Mul G] [Add G] [Sub G] [OfNat G 1] 
+def R1CSGens.commitT [Mul G] [Add G] [Sub G] [OfNat G (nat_lit 1)] 
   (self : R1CSShape G) (gen : R1CSGens G)
   (u₁ : RelaxedR1CSInstance G) 
   (w₁ : RelaxedR1CSWitness G)
