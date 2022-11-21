@@ -30,6 +30,13 @@ structure R1CSShapeSerialised where
   B : Array (USize × USize × Array U8)
   C : Array (USize × USize × Array U8)
 
+def compute_digest
+  (num_cons : USize) (num_vars : USize) (num_io : USize)
+  (A : Array (USize × USize × G))
+  (B : Array (USize × USize × G))
+  (C : Array (USize × USize × G)) : G := sorry
+
+-- Create an object of type `R1CSShape` from the explicitly specified R1CS matrices
 def R1CSShape.new [OfNat G 0]
   (num_cons : USize) (num_vars : USize) (num_io : USize)
   (A : Array (USize × USize × G))
@@ -38,7 +45,7 @@ def R1CSShape.new [OfNat G 0]
   let is_valid (M : Array (USize × USize × G)) : Either Error PUnit :=
     let sequenceUnit (i : Nat) : Either Error Unit :=
       let (row, col, _) :=
-        Array.getD M i ((0 : USize), (0 : USize), (0 : G))
+        Array.getD M i (0,0,0)
       if row >= num_cons || col > num_io + num_vars
       then .left InvalidIndex
       else .right ()
@@ -51,9 +58,65 @@ def R1CSShape.new [OfNat G 0]
   if isError res_A || isError res_B || isError res_C
   then .left InvalidIndex
   if num_io % 2 != 0 then .left OddInputLength
-  let digest := sorry
+  let digest := compute_digest num_cons num_vars num_io A B C
   let shape := R1CSShape.mk num_cons num_vars num_io A B C digest
   .right shape
+
+def USize.next_power_of_two (n : USize) : USize := sorry
+
+-- Pads the R1CSShape so that the number of variables is a power of two
+-- Renumbers variables to accomodate padded variables
+def R1CSShape.pad (self : R1CSShape G) : R1CSShape G :=
+  match (self.num_vars.next_power_of_two == self.num_vars, 
+        self.num_cons.next_power_of_two == self.num_cons) with
+    -- check if the provided R1CSShape is already as required
+    | (true, true) => self
+
+    -- check if the number of variables are as expected, then
+    -- we simply set the number of constraints to the next power of two
+    | (true, _) =>
+      let num_cons_padded := self.num_cons.next_power_of_two
+      let digest :=
+        compute_digest
+          num_cons_padded
+          self.num_vars
+          self.num_io
+          self.A
+          self.B
+          self.C
+      R1CSShape.mk num_cons_padded self.num_vars self.num_vars self.A self.B self.C digest
+
+    -- otherwise, we need to pad the number of variables
+    -- and renumber variable accesses
+    | (_,_) =>
+      let num_vars_padded := self.num_vars.next_power_of_two
+      let num_cons_padded := self.num_cons.next_power_of_two
+      let apply_pad (M : Array (USize × USize × G)) : Array (USize × USize × G) :=
+        Array.map
+          (fun (r, c, v) => 
+            if c >= self.num_vars 
+            then (r, c + num_vars_padded - self.num_vars, v)
+            else (r, c, v))
+          M
+      let A_padded := apply_pad self.A
+      let B_padded := apply_pad self.B
+      let C_padded := apply_pad self.C
+      let digest :=
+        compute_digest
+          num_cons_padded
+          num_vars_padded
+          self.num_io
+          self.A
+          self.B
+          self.C
+      R1CSShape.mk
+        num_cons_padded
+        num_vars_padded
+        self.num_io
+        A_padded
+        B_padded
+        C_padded
+        digest
 
 -- A type that holds a witness for a given R1CS instance
 structure R1CSWitness (G : Type _) where
