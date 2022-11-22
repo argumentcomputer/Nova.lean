@@ -1,8 +1,5 @@
 import Nova.SNARK.Commitments
 import Nova.SNARK.Errors
-import YatimaStdLib.Either
-
-open Either.Correctness
 
 -- Public parameters for a given R1CS
 structure R1CSGens (G : Type _) where
@@ -82,20 +79,20 @@ class NovaShape (G : Type _) where
 def R1CSWitness.fold [Mul G] [Add G] 
     (w₁ : RelaxedR1CSWitness G) 
     (w₂ : R1CSWitness G) 
-    (t : Array G) (r : G) : Either Error (RelaxedR1CSWitness G) :=
+    (t : Array G) (r : G) : Except Error (RelaxedR1CSWitness G) :=
     let (w₁, e₁) := (w₁.W, w₁.E)
     let w₂ := w₂.W
-    if w₁.size != w₂.size then (.left Error.InvalidWitnessLength) 
+    if w₁.size != w₂.size then (.error Error.InvalidWitnessLength) 
     else
       let w := Array.map (fun (a, b) => a + b * r) (Array.zip w₁ w₂)
       let e := Array.map (fun (a, b) => a + b * r) (Array.zip e₁ t)
-      .right $ RelaxedR1CSWitness.mk w e
+      .ok $ RelaxedR1CSWitness.mk w e
 
 -- Folds an incoming RelaxedR1CSInstance into the current one
 def R1CSInstance.fold {G : Type _} [Mul G] [Add G]
   (u₁ : RelaxedR1CSInstance G) 
   (u₂ : R1CSInstance G) 
-  (comm_T : Commitment G) (r : G) : Either Error (RelaxedR1CSInstance G) :=
+  (comm_T : Commitment G) (r : G) : Except Error (RelaxedR1CSInstance G) :=
   let (x₁, u', comm_W₁, comm_E₁) := (u₁.X, u₁.u, u₁.comm_W, u₁.comm_E)
   let (x₂, comm_W₂) := (u₂.X, u₂.comm_W)
   let comm_W := (comm_W₁.comm : G) + ((comm_W₂.comm : G) * r)
@@ -108,7 +105,7 @@ def R1CSInstance.fold {G : Type _} [Mul G] [Add G]
       (Commitment.mk comm_E)
       x
       u
-  .right result
+  .ok result
 
 def Array.iota (n : Nat) : Array Nat :=
   match n with
@@ -117,9 +114,9 @@ def Array.iota (n : Nat) : Array Nat :=
 
 def Array.join (xs : Array (Array A)) : Array A := Array.foldr (. ++ .) #[] xs
 
-def multiply_vec (self : R1CSShape G) (z : Array G) [Mul G] [Add G] : Either Error (Array G × Array G × Array G) :=
+def multiply_vec (self : R1CSShape G) (z : Array G) [Mul G] [Add G] : Except Error (Array G × Array G × Array G) :=
   if z.size != self.num_io.val.val + self.num_vars.val.val + 1 
-  then .left Error.InvalidWitnessLength
+  then .error Error.InvalidWitnessLength
   else
     let sparse_matrix_vec_product (M : Array (USize × USize × G)) (num_rows : USize) (z : Array G) : Array G :=
       let vals := Array.map 
@@ -135,7 +132,7 @@ def multiply_vec (self : R1CSShape G) (z : Array G) [Mul G] [Add G] : Either Err
     let Az := sparse_matrix_vec_product self.A self.num_cons z
     let Bz := sparse_matrix_vec_product self.B self.num_cons z
     let Cz := sparse_matrix_vec_product self.C self.num_cons z
-    .right (Az, Bz, Cz)
+    .ok (Az, Bz, Cz)
 
 -- A method to compute a commitment to the cross-term `T` given a
 -- Relaxed R1CS instance-witness pair and an R1CS instance-witness pair
@@ -144,7 +141,7 @@ def R1CSGens.commit_T [Mul G] [Add G] [Sub G] [OfNat G 1]
   (u₁ : RelaxedR1CSInstance G) 
   (w₁ : RelaxedR1CSWitness G)
   (u₂ : R1CSInstance G) 
-  (w₂ : R1CSWitness G) : Either Error (Array G × Commitment G) := do
+  (w₂ : R1CSWitness G) : Except Error (Array G × Commitment G) := do
   let (aZ_1, bZ_1, cZ_1) ← multiply_vec self (Array.join #[w₁.W, #[u₁.u], u₁.X])
   let (aZ_2, bZ_2, cZ_2) ← multiply_vec self (Array.join #[w₂.W, #[1], u₂.X])
   let AZ_1_circ_BZ_2 :=
@@ -170,7 +167,7 @@ def R1CSGens.commit_T [Mul G] [Add G] [Sub G] [OfNat G 1]
         (Array.zip u_1_cdot_CZ_2 u_2_cdot_CZ_1)))
   let comm_T := Commitment.mk $ 
     Array.foldr (. + .) 0 (Array.map (fun (a, b) => a * b) (Array.zip T gen.gens.gens))
-  .right (T, comm_T)
+  .ok (T, comm_T)
   -- TODO: complete this sorry in a further PR
 
 -- `NovaWitness` provide a method for acquiring an `R1CSInstance` and `R1CSWitness` from implementers.
@@ -178,4 +175,4 @@ class NovaWitness (G : Type _) where
   r1cs_instance_and_witness 
     : R1CSShape G 
     → R1CSGens G 
-    → Either Error (R1CSInstance G × R1CSWitness G)
+    → Except Error (R1CSInstance G × R1CSWitness G)
