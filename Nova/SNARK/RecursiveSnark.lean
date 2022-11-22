@@ -4,7 +4,6 @@ import Nova.SNARK.NIFS
 import Nova.SNARK.PublicParams
 import Nova.SNARK.R1CS
 import Nova.SNARK.Circuit
-import YatimaStdLib.Either
 
 namespace RecursiveSnark
 
@@ -31,14 +30,13 @@ variable [ROCircuitClass G₂] [Mul G₁] [Add G₁] [ROCircuitClass G₁]
 
 -- Create a new `RecursiveSNARK` (or updates the provided `RecursiveSNARK`)
 -- by executing a step of the incremental computation
-open Either.Correctness in
 def proof_step
   (pp : PublicParams G₁ G₂)
   (recursive_snark : Option (RecursiveSnark G₁ G₂))
   (z₀_primary : Array G₁)
-  (z₀_secondary : Array G₂) : Either Error (RecursiveSnark G₁ G₂) := do
+  (z₀_secondary : Array G₂) : Except Error (RecursiveSnark G₁ G₂) := do
   if z₀_primary.size != pp.F_arity_primary.val || z₀_secondary.size != pp.F_arity_secondary.val
-  then .left Error.InvalidInitialInputLength
+  then .error Error.InvalidInitialInputLength
     match recursive_snark with
       | .none =>
       -- base case for the primary
@@ -79,9 +77,9 @@ def proof_step
       let zi_primary := c_primary.output z₀_primary
       let zi_secondary := c_secondary.output z₀_secondary
       if z₀_primary.size != pp.F_arity_primary.val || z₀_secondary.size != pp.F_arity_secondary.val
-      then .left Error.InvalidStepOutputLength
+      then .error Error.InvalidStepOutputLength
       else
-      .right $ RecursiveSnark.mk
+      .ok $ RecursiveSnark.mk
                 r_W_primary 
                 r_U_primary 
                 w_primary 
@@ -115,7 +113,7 @@ def proof_step
           r_snark.r_W_primary
           l_u_primary
           l_w_primary
-      .right $ RecursiveSnark.mk 
+      .ok $ RecursiveSnark.mk 
                  r_W_primary
                  r_U_primary
                  l_w_primary
@@ -134,7 +132,7 @@ TODO: complete this function in a further PR
 def verify 
   (self : RecursiveSnark G₁ G₂) (pp : PublicParams G₁ G₂)
   (num_steps : USize) (z₀_primary : Array G₁) 
-  (z₀_secondary : Array G₂) : Either Error (Array G₁ × Array G₂)
+  (z₀_secondary : Array G₂) : Except Error (Array G₁ × Array G₂)
   :=
   let bad_cases :=
     num_steps == 0 || self.i != num_steps ||

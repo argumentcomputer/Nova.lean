@@ -1,7 +1,6 @@
 import Nova.SNARK.Commitments
 import Nova.SNARK.Errors
 import Nova.SNARK.R1CS
-import YatimaStdLib.Either
 
 -- A helper trait for a step of the incremental computation (i.e., circuit for F)
 class StepCircuit (F : Type _) where
@@ -12,7 +11,7 @@ class StepCircuit (F : Type _) where
   arity : USize
 -- Sythesize the circuit for a computation step and return variable
 -- that corresponds to the output of the step z
-  synthesise : Array F → Either SynthesisError (Array F)
+  synthesise : Array F → Except SynthesisError (Array F)
 -- return the output of the step when provided with the step's input
   output : Array F → Array F
 
