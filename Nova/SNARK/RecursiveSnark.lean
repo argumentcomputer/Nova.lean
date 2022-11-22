@@ -28,7 +28,6 @@ variable [Inhabited G₂] [Inhabited G₁] [Mul G₂] [Add G₂] [Sub G₂] [Sub
 variable [ROCircuitClass G₂] [Mul G₁] [Add G₁] [ROCircuitClass G₁]
 variable [BEq G₁] [HPow G₁ G₁ G₁] [BEq G₂] [HPow G₂ G₂ G₂]
 
-open Either.Correctness
 open Error
 
 -- Create a new `RecursiveSNARK` (or updates the provided `RecursiveSNARK`)
@@ -149,8 +148,8 @@ def verify
     self.r_U_primary.X.size != 2 ||
     self.r_U_secondary.X.size != 2
   if bad_cases 
-  then .left ProofVerifyError
-  else
+  then .error ProofVerifyError
+  else do
   -- check if the output hashes in R1CS instances point to the right running instances
   -- TODO
     let mut hasher :=

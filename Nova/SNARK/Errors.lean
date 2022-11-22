@@ -1,5 +1,3 @@
-import YatimaStdLib.Either
-
 -- Errors returned by Nova
 inductive Error : Type where
   -- returned if the supplied row or col in (row,col,val) tuple is out of range
@@ -31,11 +29,10 @@ inductive Error : Type where
   | InvalidStepOutputLength
 
 open Error in
-open Either.Correctness in
-def isError (act : Either Error A) : Bool :=
+def isError (act : Except Error A) : Bool :=
   match act with
-    | .left _ => true
-    | _         => false
+    | .error _ => true
+    | _        => false
 
 inductive SynthesisError : Type where
   | AssignmentMissing : SynthesisError

@@ -3,9 +3,10 @@ import Nova.SNARK.Errors
 import Nova.SNARK.ShapeCS
 
 import YatimaStdLib.Array
+import YatimaStdLib.Monad
 
 open Error
-open Monad
+open Except
 
 import YatimaStdLib.Array
 
@@ -39,30 +40,31 @@ def compute_digest
   (C : Array (USize × USize × G)) : G := sorry
 
 -- Create an object of type `R1CSShape` from the explicitly specified R1CS matrices
+open Monad in
 def R1CSShape.new [OfNat G (nat_lit 0)]
   (num_cons : USize) (num_vars : USize) (num_io : USize)
   (A : Array (USize × USize × G))
   (B : Array (USize × USize × G))
-  (C : Array (USize × USize × G)) : Either Error (R1CSShape G) := do
-  let is_valid (M : Array (USize × USize × G)) : Either Error PUnit :=
-    let sequenceUnit (i : Nat) : Either Error Unit :=
+  (C : Array (USize × USize × G)) : Except Error (R1CSShape G) := do
+  let is_valid (M : Array (USize × USize × G)) : Except Error PUnit :=
+    let sequenceUnit (i : Nat) : Except Error Unit :=
       let (row, col, _) :=
         Array.getD M i (0,0,0)
       if row >= num_cons || col > num_io + num_vars
-      then .left InvalidIndex
-      else .right ()
+      then .error InvalidIndex
+      else .ok ()
     let res' := Array.map sequenceUnit (Array.iota M.size)
-    if isError (Array.foldr seqComp (.right ()) res') 
-    then .left InvalidIndex else .right ()
+    if isError (Array.foldr seqComp (.ok ()) res') 
+    then .error InvalidIndex else .ok ()
   let res_A := is_valid A
   let res_B := is_valid B
   let res_C := is_valid C
   if isError res_A || isError res_B || isError res_C
-  then .left InvalidIndex
-  if num_io % 2 != 0 then .left OddInputLength
+  then .error InvalidIndex
+  if num_io % 2 != 0 then .error OddInputLength
   let digest := compute_digest num_cons num_vars num_io A B C
   let shape := R1CSShape.mk num_cons num_vars num_io A B C digest
-  .right shape
+  .ok shape
 
 def USize.next_power_of_two (n : USize) : USize := sorry
 
