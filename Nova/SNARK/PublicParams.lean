@@ -29,8 +29,8 @@ variable [cs : NovaShape G₁] [cs2 : NovaShape G₂]
 def setup : PublicParams G₁ G₂ :=
   let FArityPrimary : USize := cPrimary.arity
   let FAritySecondary : USize := cSecondary.arity
-  let (R1CSShapePrimary, R1CSGensPrimary) := (cs.r1cs_shape, cs.r1cs_gens)
-  let (R1CSShapeSecondary, R1CSGensSecondary) := (cs2.r1cs_shape, cs2.r1cs_gens)
+  let (R1CSShapePrimary, R1CSGensPrimary) := (cs.R1CSShape, cs.R1CSGens)
+  let (R1CSShapeSecondary, R1CSGensSecondary) := (cs2.R1CSShape, cs2.R1CSGens)
   let AugmentedCircuitParamsPrimary : NovaAugmentedCircuitParams :=
   NovaAugmentedCircuitParams.mk BN_LIMB_WIDTH BN_N_LIMBS true
   let AugmentedCircuitParamsSecondary : NovaAugmentedCircuitParams :=

@@ -16,10 +16,10 @@ class StepCircuit (F : Type _) where
   output : Array F → Array F
 
 structure NovaAugmentedCircuitParams where
-  limb_width : USize
-  n_limbs : USize
+  limbWidth : USize
+  nLimbs : USize
 -- A boolean indicating if this is the primary circuit
-  is_primary_circuit : Bool
+  isPrimaryCircuit : Bool
 
 structure TrivialTestCircuit (F : Type _) where
   _p : F
