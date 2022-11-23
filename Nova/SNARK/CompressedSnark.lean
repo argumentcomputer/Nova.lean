@@ -8,17 +8,17 @@ namespace CompressedSnark
 structure CompressedSnark 
   (G₁ : Type _) (G₂ : Type _) 
   (S₁ : Type _) (S₂ : Type _) where
-  r_U_primary : RelaxedR1CSInstance G₁
-  l_u_primary : R1CSInstance G₁
-  nifs_primary : NIFS G₁
-  f_W_snark_primary : S₁
+  ruPrimary : RelaxedR1CSInstance G₁
+  luPrimary : R1CSInstance G₁
+  NIFSprimary : NIFS G₁
+  fwSnarkPrimary : S₁
 
-  r_U_secondary : RelaxedR1CSInstance G₂
-  l_u_secondary : R1CSInstance G₂
-  nifs_secondary : NIFS G₂
-  f_W_snark_secondary : S₂
+  ruSecondary : RelaxedR1CSInstance G₂
+  luSecondary : R1CSInstance G₂
+  NIFSSecondary : NIFS G₂
+  fwSnarkSecondary : S₂
 
-  zn_primary : Array G₁
-  zn_secondary : Array G₂
+  znPrimary : Array G₁
+  znSecondary : Array G₂
 
 end CompressedSnark

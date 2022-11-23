@@ -7,9 +7,9 @@ structure R1CSGens (G : Type _) where
 
 -- A type that holds the shape of the R1CS matrices
 structure R1CSShape (G : Type _) where
-  num_cons : USize
-  num_vars : USize
-  num_io : USize
+  numCons : USize
+  numVars : USize
+  numIO : USize
   A : Array (USize × USize × G)
   B : Array (USize × USize × G)
   C : Array (USize × USize × G)
@@ -23,7 +23,7 @@ structure R1CSWitness (G : Type _) where
 
 -- A type that holds an R1CS instance
 structure R1CSInstance (G : Type _) where
-  comm_W : Commitment G
+  commW : Commitment G
   X : Array G
   deriving BEq
 
@@ -35,45 +35,45 @@ structure RelaxedR1CSWitness (G : Type _) where
 
 -- A type that holds a Relaxed R1CS instance
 structure RelaxedR1CSInstance (G : Type _) where
-  comm_W : Commitment G
-  comm_E : Commitment G
+  commW : Commitment G
+  commE : Commitment G
   X : Array G
   u : G
   deriving BEq
 
 -- Returns the number of constraints in the primary and secondary circuits
-def num_constraints (shape₁ : R1CSShape G₁) (shape₂ : R1CSShape G₂) : USize × USize :=
-  (shape₁.num_cons, shape₂.num_cons)
+def numConstraints (shape₁ : R1CSShape G₁) (shape₂ : R1CSShape G₂) : USize × USize :=
+  (shape₁.numCons, shape₂.numCons)
 
 -- Returns the number of variables in the primary and secondary circuits
-def num_variables (shape₁ : R1CSShape G₁) (shape₂ : R1CSShape G₂) : USize × USize :=
-  (shape₁.num_vars, shape₂.num_vars)
+def numVariables (shape₁ : R1CSShape G₁) (shape₂ : R1CSShape G₂) : USize × USize :=
+  (shape₁.numVars, shape₂.numVars)
 
 -- Initialises a new RelaxedR1CSInstance from an R1CSInstance
-def from_r1cs_instance [OfNat G 1] (gen : R1CSGens G)
+def fromR1CSInstance [OfNat G 1] (gen : R1CSGens G)
                        (inst : R1CSInstance G) : RelaxedR1CSInstance G :=
-  RelaxedR1CSInstance.mk inst.comm_W (Commitment.mk gen.gens._p) inst.X (1 : G)
+  RelaxedR1CSInstance.mk inst.commW (Commitment.mk gen.gens._p) inst.X (1 : G)
 
 variable [OfNat G 0] [Coe USize G]
 
 -- Initialises a new RelaxedR1CSWitness from an R1CSWitness
-def from_r1cs_witness (S : R1CSShape G) (witness : R1CSWitness G)  : RelaxedR1CSWitness G :=
-  RelaxedR1CSWitness.mk witness.W #[0, S.num_cons]
+def fromR1CSWitness (S : R1CSShape G) (witness : R1CSWitness G)  : RelaxedR1CSWitness G :=
+  RelaxedR1CSWitness.mk witness.W #[0, S.numCons]
 
 -- Produces a default RelaxedR1CSWitness given an R1CSShape
-def default_relaxed_r1cs_witness (s : R1CSShape G) : RelaxedR1CSWitness G :=
-  RelaxedR1CSWitness.mk #[0, s.num_vars] #[0, s.num_cons]
+def defaultRelaxedR1CSWitness (s : R1CSShape G) : RelaxedR1CSWitness G :=
+  RelaxedR1CSWitness.mk #[0, s.numVars] #[0, s.numCons]
 
 -- Produces a default RelaxedR1CSInstance given R1CSGens and R1CSShape
-def default_relaxed_r1cs_instance (s : R1CSShape G) : RelaxedR1CSInstance G :=
-  RelaxedR1CSInstance.mk (Commitment.mk 0) (Commitment.mk 0) #[0, s.num_io] 0
+def defaultRelaxedR1CSInstance (s : R1CSShape G) : RelaxedR1CSInstance G :=
+  RelaxedR1CSInstance.mk (Commitment.mk 0) (Commitment.mk 0) #[0, s.numIO] 0
 
 -- `NovaShape` provides methods for acquiring `R1CSShape` and `R1CSGens` from implementers.
 class NovaShape (G : Type _) where
 -- Return an appropriate `R1CSShape` struct
-  r1cs_shape : R1CSShape G
+  R1CSShape : R1CSShape G
 -- Return an appropriate `R1CSGens` struct
-  r1cs_gens : R1CSGens G
+  R1CSGens : R1CSGens G
 
 -- Folds an incoming R1CSWitness into the current one
 def R1CSWitness.fold [Mul G] [Add G] 
@@ -92,17 +92,17 @@ def R1CSWitness.fold [Mul G] [Add G]
 def R1CSInstance.fold {G : Type _} [Mul G] [Add G]
   (u₁ : RelaxedR1CSInstance G) 
   (u₂ : R1CSInstance G) 
-  (comm_T : Commitment G) (r : G) : Except Error (RelaxedR1CSInstance G) :=
-  let (x₁, u', comm_W₁, comm_E₁) := (u₁.X, u₁.u, u₁.comm_W, u₁.comm_E)
-  let (x₂, comm_W₂) := (u₂.X, u₂.comm_W)
-  let comm_W := (comm_W₁.comm : G) + ((comm_W₂.comm : G) * r)
-  let comm_E := comm_E₁.comm + comm_T.comm * r
+  (commT : Commitment G) (r : G) : Except Error (RelaxedR1CSInstance G) :=
+  let (x₁, u', commW₁, commE₁) := (u₁.X, u₁.u, u₁.commW, u₁.commE)
+  let (x₂, commW₂) := (u₂.X, u₂.commW)
+  let commW := (commW₁.comm : G) + ((commW₂.comm : G) * r)
+  let commE := commE₁.comm + commT.comm * r
   let u := u' + r
   let x := Array.map (fun (a,b) => a + b * r) (Array.zip x₁ x₂)
   let result :=
     RelaxedR1CSInstance.mk 
-      (Commitment.mk comm_W) 
-      (Commitment.mk comm_E)
+      (Commitment.mk commW) 
+      (Commitment.mk commE)
       x
       u
   .ok result
@@ -114,11 +114,11 @@ def Array.iota (n : Nat) : Array Nat :=
 
 def Array.join (xs : Array (Array A)) : Array A := Array.foldr (. ++ .) #[] xs
 
-def multiply_vec (self : R1CSShape G) (z : Array G) [Mul G] [Add G] : Except Error (Array G × Array G × Array G) :=
-  if z.size != self.num_io.val.val + self.num_vars.val.val + 1 
+def multiplyVec (self : R1CSShape G) (z : Array G) [Mul G] [Add G] : Except Error (Array G × Array G × Array G) :=
+  if z.size != self.numIO.val.val + self.numVars.val.val + 1 
   then .error Error.InvalidWitnessLength
   else
-    let sparse_matrix_vec_product (M : Array (USize × USize × G)) (num_rows : USize) (z : Array G) : Array G :=
+    let sparseMatrixVecProduct (M : Array (USize × USize × G)) (numRows : USize) (z : Array G) : Array G :=
       let vals := Array.map 
         (fun i => 
           let (row, col, val) := Array.getD M i (0, 0, 0)
@@ -127,52 +127,52 @@ def multiply_vec (self : R1CSShape G) (z : Array G) [Mul G] [Add G] : Except Err
         (Array.iota M.size)
       Array.foldr 
         (fun (r,v) mz => Array.setD mz r.val (v + Array.getD mz r.val 0)) 
-        #[0, num_rows] 
+        #[0, numRows] 
         vals 
-    let Az := sparse_matrix_vec_product self.A self.num_cons z
-    let Bz := sparse_matrix_vec_product self.B self.num_cons z
-    let Cz := sparse_matrix_vec_product self.C self.num_cons z
+    let Az := sparseMatrixVecProduct self.A self.numCons z
+    let Bz := sparseMatrixVecProduct self.B self.numCons z
+    let Cz := sparseMatrixVecProduct self.C self.numCons z
     .ok (Az, Bz, Cz)
 
 -- A method to compute a commitment to the cross-term `T` given a
 -- Relaxed R1CS instance-witness pair and an R1CS instance-witness pair
-def R1CSGens.commit_T [Mul G] [Add G] [Sub G] [OfNat G 1] 
+def R1CSGens.commitT [Mul G] [Add G] [Sub G] [OfNat G 1] 
   (self : R1CSShape G) (gen : R1CSGens G)
   (u₁ : RelaxedR1CSInstance G) 
   (w₁ : RelaxedR1CSWitness G)
   (u₂ : R1CSInstance G) 
   (w₂ : R1CSWitness G) : Except Error (Array G × Commitment G) := do
-  let (aZ_1, bZ_1, cZ_1) ← multiply_vec self (Array.join #[w₁.W, #[u₁.u], u₁.X])
-  let (aZ_2, bZ_2, cZ_2) ← multiply_vec self (Array.join #[w₂.W, #[1], u₂.X])
-  let AZ_1_circ_BZ_2 :=
+  let (az₁, bz₁, cz₁) ← multiplyVec self (Array.join #[w₁.W, #[u₁.u], u₁.X])
+  let (az₂, bz₂, cz₂) ← multiplyVec self (Array.join #[w₂.W, #[1], u₂.X])
+  let az₁bz₂ :=
     Array.map 
-      (fun i => Array.getD aZ_1 i 0 *  Array.getD bZ_2 i 0) 
-      (Array.iota aZ_1.size)
-  let AZ_2_circ_BZ_1 :=
+      (fun i => Array.getD az₁ i 0 *  Array.getD bz₂ i 0) 
+      (Array.iota az₁.size)
+  let az₂bz₁ :=
     Array.map
-      (fun i => Array.getD aZ_2 i 0 *  Array.getD bZ_1 i 0) 
-      (Array.iota aZ_2.size)
-  let u_1_cdot_CZ_2 :=
+      (fun i => Array.getD az₂ i 0 *  Array.getD bz₁ i 0) 
+      (Array.iota az₂.size)
+  let u₁cz₂ :=
     Array.map
-      (fun i => u₁.u * Array.getD cZ_2 i 0)
-      (Array.iota cZ_2.size)
-  let u_2_cdot_CZ_1 :=
+      (fun i => u₁.u * Array.getD cz₂ i 0)
+      (Array.iota cz₂.size)
+  let u₂cz₁ :=
     Array.map
-      (fun i => Array.getD cZ_1 i 0)
-      (Array.iota cZ_1.size)
-  let T :=
+      (fun i => Array.getD cz₁ i 0)
+      (Array.iota cz₁.size)
+  let t :=
     Array.map (fun (a,b,c,d) => a + b - c - d)
-    (Array.zip AZ_2_circ_BZ_1
-      (Array.zip AZ_1_circ_BZ_2 
-        (Array.zip u_1_cdot_CZ_2 u_2_cdot_CZ_1)))
-  let comm_T := Commitment.mk $ 
-    Array.foldr (. + .) 0 (Array.map (fun (a, b) => a * b) (Array.zip T gen.gens.gens))
-  .ok (T, comm_T)
+    (Array.zip az₂bz₁
+      (Array.zip az₁bz₂
+        (Array.zip u₁cz₂ u₂cz₁)))
+  let commT := Commitment.mk $ 
+    Array.foldr (. + .) 0 (Array.map (fun (a, b) => a * b) (Array.zip t gen.gens.gens))
+  .ok (t, commT)
   -- TODO: complete this sorry in a further PR
 
 -- `NovaWitness` provide a method for acquiring an `R1CSInstance` and `R1CSWitness` from implementers.
 class NovaWitness (G : Type _) where
-  r1cs_instance_and_witness 
+  R1CSInstanceAndWitness 
     : R1CSShape G 
     → R1CSGens G 
     → Except Error (R1CSInstance G × R1CSWitness G)
