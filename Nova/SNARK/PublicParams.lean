@@ -1,6 +1,7 @@
 import Nova.SNARK.Circuit
 import Nova.SNARK.Commitments
 import Nova.SNARK.Constraints
+import Nova.SNARK.ShapeCS
 import Nova.SNARK.R1CS
 
 -- A type that holds public parameters of Nova
@@ -26,11 +27,14 @@ variable [cPrimary : StepCircuit G₁] [cSecondary : StepCircuit G₂]
 variable [cs : NovaShape G₁] [cs2 : NovaShape G₂]
 
 -- Create a new `PublicParams`
+open NovaShape in
 def setup : PublicParams G₁ G₂ :=
   let FArityPrimary : USize := cPrimary.arity
   let FAritySecondary : USize := cSecondary.arity
-  let (R1CSShapePrimary, R1CSGensPrimary) := (cs.R1CSShape, cs.R1CSGens)
-  let (R1CSShapeSecondary, R1CSGensSecondary) := (cs2.R1CSShape, cs2.R1CSGens)
+  let cs₁ : ShapeCS G₁ := ShapeCS.new
+  let (R1CSShapePrimary, R1CSGensPrimary) := (s₁.R1CSShape cs₁, s₁.R1CSGens cs₁)
+  let cs₂ : ShapeCS G₂ := ShapeCS.new
+  let (R1CSShapeSecondary, R1CSGensSecondary) := (cs2.R1CSShape cs₂, cs2.R1CSGens cs₂)
   let AugmentedCircuitParamsPrimary : NovaAugmentedCircuitParams :=
   NovaAugmentedCircuitParams.mk BN_LIMB_WIDTH BN_N_LIMBS true
   let AugmentedCircuitParamsSecondary : NovaAugmentedCircuitParams :=

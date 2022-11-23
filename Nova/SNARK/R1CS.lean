@@ -1,5 +1,7 @@
 import Nova.SNARK.Commitments
 import Nova.SNARK.Errors
+import Nova.SNARK.ShapeCS
+
 import YatimaStdLib.Array
 
 open Error
@@ -173,9 +175,9 @@ def defaultRelaxedR1CSInstance (s : R1CSShape G) : RelaxedR1CSInstance G :=
 -- `NovaShape` provides methods for acquiring `R1CSShape` and `R1CSGens` from implementers.
 class NovaShape (G : Type _) where
 -- Return an appropriate `R1CSShape` struct
-  R1CSShape : R1CSShape G
+  R1CSShape : ShapeCS G → R1CSShape G
 -- Return an appropriate `R1CSGens` struct
-  R1CSGens : R1CSGens G
+  R1CSGens : ShapeCS G → R1CSGens G
 
 -- Folds an incoming R1CSWitness into the current one
 def R1CSWitness.fold [Mul G] [Add G] 

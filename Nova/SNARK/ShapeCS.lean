@@ -1,4 +1,5 @@
 import Nova.BellPerson.Index
+import Nova.BellPerson.LinearCombination
 
 inductive NamedObject where
   | Constraint : USize → NamedObject
@@ -11,3 +12,8 @@ structure ShapeCS (G : Type _) where
   currentNamespace : Array String
   inputs : Array String
   aux : Array String
+
+open NamedObject in
+open Index in
+def ShapeCS.new : ShapeCS G :=
+  ShapeCS.mk #[("ONE", Var ∘ Variable.mk ∘ Input $ 1)] #[] #[] #["ONE"] #[]
