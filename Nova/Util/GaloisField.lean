@@ -120,7 +120,7 @@ class IrreducibleMonic (P : Type _) (K : Type _) [GaloisField K] where
 class ExtensionField (K : Type) [GaloisField K] where
   fromE [GaloisField (Extension P K)] [IrreducibleMonic P K] : Extension P K → List K
 
-def polyPow [OfNat K 0] : Polynomial K → Nat → Polynomial K
+def polyPow [OfNat K 0] [BEq K] : Polynomial K → Nat → Polynomial K
   | _, 0 => #[1]
   | p, k + 1 => polyMul p (polyPow p k)
 

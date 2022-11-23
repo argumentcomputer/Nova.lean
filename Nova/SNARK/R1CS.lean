@@ -1,6 +1,8 @@
 import Nova.SNARK.Commitments
 import Nova.SNARK.Errors
 
+import YatimaStdLib.Array
+
 -- Public parameters for a given R1CS
 structure R1CSGens (G : Type _) where
   gens : CommitGens G
@@ -107,13 +109,6 @@ def R1CSInstance.fold {G : Type _} [Mul G] [Add G]
       u
   .ok result
 
-def Array.iota (n : Nat) : Array Nat :=
-  match n with
-    | 0 => #[0]
-    | k+1 => iota k ++ #[k + 1]
-
-def Array.join (xs : Array (Array A)) : Array A := Array.foldr (. ++ .) #[] xs
-
 def multiplyVec (self : R1CSShape G) (z : Array G) [Mul G] [Add G] : Except Error (Array G × Array G × Array G) :=
   if z.size != self.numIO.val.val + self.numVars.val.val + 1 
   then .error Error.InvalidWitnessLength
@@ -165,7 +160,7 @@ def R1CSGens.commitT [Mul G] [Add G] [Sub G] [OfNat G 1]
     (Array.zip az₂bz₁
       (Array.zip az₁bz₂
         (Array.zip u₁cz₂ u₂cz₁)))
-  let commT := Commitment.mk $ 
+  let commT := Commitment.mk $
     Array.foldr (. + .) 0 (Array.map (fun (a, b) => a * b) (Array.zip t gen.gens.gens))
   .ok (t, commT)
   -- TODO: complete this sorry in a further PR
