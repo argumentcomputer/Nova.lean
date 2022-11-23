@@ -134,52 +134,52 @@ def proofStep
 -- Verify the correctness of the `RecursiveSNARK`
 def verify
   (self : RecursiveSnark G₁ G₂) (pp : PublicParams G₁ G₂)
-  (num_steps : USize) (z₀_primary : Array G₁) 
-  (z₀_secondary : Array G₂) : Except Error (Array G₁ × Array G₂)
+  (numSteps : USize) (z₀Primary : Array G₁) 
+  (z₀Secondary : Array G₂) : Except Error (Array G₁ × Array G₂)
   :=
   let bad_cases :=
   -- number of steps cannot be zero
-    num_steps == 0 ||
-  -- check if the provided proof has executed num_steps
-    self.i != num_steps ||
+    numSteps == 0 ||
+  -- check if the provided proof has executed numSteps
+    self.i != numSteps ||
   -- check if the (relaxed) R1CS instances have two public outputs
-    self.l_u_primary.X.size != 2 ||
-    self.l_u_secondary.X.size != 2 || 
-    self.r_U_primary.X.size != 2 ||
-    self.r_U_secondary.X.size != 2
+    self.luPrimary.X.size != 2 ||
+    self.luSecondary.X.size != 2 || 
+    self.ruPrimary.X.size != 2 ||
+    self.ruSecondary.X.size != 2
   if bad_cases 
   then .error ProofVerifyError
   else do
   -- check if the output hashes in R1CS instances point to the right running instances
   -- TODO
     let mut hasher :=
-      NUM_FE_WITHOUT_IO_FOR_CRHF + 2 * pp.F_arity_primary
+      NUM_FE_WITHOUT_IO_FOR_CRHF + 2 * pp.FArityPrimary
     let mut hasher2 :=
-      NUM_FE_WITHOUT_IO_FOR_CRHF + 2 * pp.F_arity_secondary
-    for e in z₀_primary do
+      NUM_FE_WITHOUT_IO_FOR_CRHF + 2 * pp.FAritySecondary
+    for e in z₀Primary do
       sorry
-    for e in self.zi_primary do
+    for e in self.ziPrimary do
       sorry
   -- check the satisfiability of the provided instances
-    is_sat_relaxed
-      pp.r1cs_shape_primary
-      pp.r1cs_gens_primary
-      self.r_U_primary
-      self.r_W_primary
-    is_sat
-      pp.r1cs_shape_primary
-      pp.r1cs_gens_primary
-      self.l_u_primary
-      self.l_w_primary
-    is_sat_relaxed
-      pp.r1cs_shape_secondary
-      pp.r1cs_gens_secondary
-      self.r_U_secondary
-      self.r_W_secondary
-    is_sat
-      pp.r1cs_shape_secondary
-      pp.r1cs_gens_secondary
-      self.l_u_secondary
-      self.l_w_secondary
+    isSatRelaxed
+      pp.R1CSShapePrimary
+      pp.R1CSGensPrimary
+      self.ruPrimary
+      self.rwPrimary
+    isSat
+      pp.R1CSShapePrimary
+      pp.R1CSGensPrimary
+      self.luPrimary
+      self.lwPrimary
+    isSatRelaxed
+      pp.R1CSShapeSecondary
+      pp.R1CSGensSecondary
+      self.ruSecondary
+      self.rwSecondary
+    isSat
+      pp.R1CSShapeSecondary
+      pp.R1CSGensSecondary
+      self.luSecondary
+      self.lwSecondary
   
-    pure (self.zi_primary, self.zi_secondary)
+    pure (self.ziPrimary, self.ziSecondary)

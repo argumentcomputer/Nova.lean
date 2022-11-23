@@ -4,11 +4,10 @@ import Nova.SNARK.ShapeCS
 
 import YatimaStdLib.Array
 import YatimaStdLib.Monad
+import YatimaStdLib.USize
 
 open Error
 open Except
-
-import YatimaStdLib.Array
 
 -- Public parameters for a given R1CS
 structure R1CSGens (G : Type _) where
@@ -26,15 +25,15 @@ structure R1CSShape (G : Type _) where
   deriving BEq
 
 structure R1CSShapeSerialised where
-  num_cons : USize
-  num_vars : USize
-  num_io : USize
+  numCons : USize
+  numVars : USize
+  numIO : USize
   A : Array (USize × USize × Array U8)
   B : Array (USize × USize × Array U8)
   C : Array (USize × USize × Array U8)
 
 def compute_digest
-  (num_cons : USize) (num_vars : USize) (num_io : USize)
+  (numCons : USize) (num_vars : USize) (num_io : USize)
   (A : Array (USize × USize × G))
   (B : Array (USize × USize × G))
   (C : Array (USize × USize × G)) : G := sorry
@@ -42,81 +41,79 @@ def compute_digest
 -- Create an object of type `R1CSShape` from the explicitly specified R1CS matrices
 open Monad in
 def R1CSShape.new [OfNat G (nat_lit 0)]
-  (num_cons : USize) (num_vars : USize) (num_io : USize)
+  (numCons : USize) (numVars : USize) (numIO : USize)
   (A : Array (USize × USize × G))
   (B : Array (USize × USize × G))
   (C : Array (USize × USize × G)) : Except Error (R1CSShape G) := do
-  let is_valid (M : Array (USize × USize × G)) : Except Error PUnit :=
+  let isValid (M : Array (USize × USize × G)) : Except Error PUnit :=
     let sequenceUnit (i : Nat) : Except Error Unit :=
       let (row, col, _) :=
         Array.getD M i (0,0,0)
-      if row >= num_cons || col > num_io + num_vars
+      if row >= numCons || col > numIO + numVars
       then .error InvalidIndex
       else .ok ()
     let res' := Array.map sequenceUnit (Array.iota M.size)
     if isError (Array.foldr seqComp (.ok ()) res') 
     then .error InvalidIndex else .ok ()
-  let res_A := is_valid A
-  let res_B := is_valid B
-  let res_C := is_valid C
-  if isError res_A || isError res_B || isError res_C
+  let resA := isValid A
+  let resB := isValid B
+  let resC := isValid C
+  if isError resA || isError resB || isError resC
   then .error InvalidIndex
-  if num_io % 2 != 0 then .error OddInputLength
-  let digest := compute_digest num_cons num_vars num_io A B C
-  let shape := R1CSShape.mk num_cons num_vars num_io A B C digest
+  if numIO % 2 != 0 then .error OddInputLength
+  let digest := compute_digest numCons numVars numIO A B C
+  let shape := R1CSShape.mk numCons numVars numIO A B C digest
   .ok shape
-
-def USize.next_power_of_two (n : USize) : USize := sorry
 
 -- Pads the R1CSShape so that the number of variables is a power of two
 -- Renumbers variables to accomodate padded variables
 def R1CSShape.pad (self : R1CSShape G) : R1CSShape G :=
-  match (self.num_vars.next_power_of_two == self.num_vars, 
-        self.num_cons.next_power_of_two == self.num_cons) with
+  match (self.numVars.nextPowerOfTwo == self.numVars, 
+        self.numCons.nextPowerOfTwo == self.numCons) with
     -- check if the provided R1CSShape is already as required
     | (true, true) => self
 
     -- check if the number of variables are as expected, then
     -- we simply set the number of constraints to the next power of two
     | (true, _) =>
-      let num_cons_padded := self.num_cons.next_power_of_two
+      let numConsPadded := self.numCons.nextPowerOfTwo
       let digest :=
         compute_digest
-          num_cons_padded
-          self.num_vars
-          self.num_io
+          numConsPadded
+          self.numVars
+          self.numIO
           self.A
           self.B
           self.C
-      R1CSShape.mk num_cons_padded self.num_vars self.num_vars self.A self.B self.C digest
+      R1CSShape.mk numConsPadded self.numVars self.numVars self.A self.B self.C digest
 
     -- otherwise, we need to pad the number of variables
     -- and renumber variable accesses
     | (_,_) =>
-      let num_vars_padded := self.num_vars.next_power_of_two
-      let num_cons_padded := self.num_cons.next_power_of_two
-      let apply_pad (M : Array (USize × USize × G)) : Array (USize × USize × G) :=
+      let numVarsPadded := self.numVars.nextPowerOfTwo
+      let numConsPadded := self.numCons.nextPowerOfTwo
+      let applyPad (M : Array (USize × USize × G)) : Array (USize × USize × G) :=
         Array.map
           (fun (r, c, v) => 
-            if c >= self.num_vars 
-            then (r, c + num_vars_padded - self.num_vars, v)
+            if c >= self.numVars 
+            then (r, c + numVarsPadded - self.numVars, v)
             else (r, c, v))
           M
-      let A_padded := apply_pad self.A
-      let B_padded := apply_pad self.B
-      let C_padded := apply_pad self.C
+      let A_padded := applyPad self.A
+      let B_padded := applyPad self.B
+      let C_padded := applyPad self.C
       let digest :=
         compute_digest
-          num_cons_padded
-          num_vars_padded
-          self.num_io
+          numConsPadded
+          numVarsPadded
+          self.numIO
           self.A
           self.B
           self.C
       R1CSShape.mk
-        num_cons_padded
-        num_vars_padded
-        self.num_io
+        numConsPadded
+        numVarsPadded
+        self.numIO
         A_padded
         B_padded
         C_padded
@@ -268,6 +265,71 @@ def R1CSGens.commitT [Mul G] [Add G] [Sub G] [OfNat G (nat_lit 1)]
     Array.foldr (. + .) 0 (Array.map (fun (a, b) => a * b) (Array.zip t gen.gens.gens))
   .ok (t, commT)
   -- TODO: complete this sorry in a further PR
+
+-- Checks if the Relaxed R1CS instance is satisfiable given a witness and its shape
+def isSatRelaxed [Mul G] [Add G] [BEq G] [HPow G G G]
+  (self : R1CSShape G) (gen : R1CSGens G)
+  (U : RelaxedR1CSInstance G) (W : RelaxedR1CSWitness G) : Except Error Unit := do
+  let z := Array.join #[W.W, #[U.u], U.X]
+  let (Az, Bz, Cz) ← multiplyVec self z
+  if
+    W.W.size != self.numVars.val ||
+    W.E.size != self.numCons.val ||
+    U.X.size != self.numIO.val
+  then
+        -- verify if Az * Bz = u*Cz + E
+    let res_eq : Bool :=
+      if
+        Az.size != self.numCons.val ||
+        Bz.size != self.numCons.val ||
+        Cz.size != self.numCons.val
+      then false
+      else
+      let res : USize := 
+        Array.foldr 
+          (. + .)
+          0 $
+          Array.map 
+            (fun i => 
+              if Array.getD Az i 0 * Array.getD Bz i 0 == 
+                  U.u * Array.getD Cz i 0 + Array.getD W.E i 0 
+              then 0 else 1) 
+            (Array.iota self.numCons.val)
+      res == 0
+      let (commW, commE) := (commit W.W gen.gens, commit W.E gen.gens)
+    let res_comm : Bool := U.commW == commW && U.commE == commE
+    if res_eq && res_comm then .ok () else .error UnSat
+    else .error InvalidInitialInputLength
+
+
+-- Checks if the R1CS instance is satisfiable given a witness and its shape
+def isSat [Mul G] [Add G] [OfNat G (nat_lit 1)] [OfNat G (nat_lit 0)] [BEq G] [HPow G G G]
+  (self : R1CSShape G) (gen : R1CSGens G)
+  (U : R1CSInstance G) (W : R1CSWitness G) : Except Error Unit := do
+  let z := Array.join #[W.W, #[1], U.X]
+  let (Az, Bz, Cz) ← multiplyVec self z
+  if
+    W.W.size != self.numVars.val ||
+    U.X.size != self.numIO.val
+  then .error InvalidInitialInputLength
+  else
+    -- verify if Az * Bz = u*Cz
+  let resEq : Bool :=
+      if
+        Az.size != self.numCons.val ||
+        Bz.size != self.numCons.val ||
+        Cz.size != self.numCons.val
+      then false
+      else
+      let res := Array.foldr (. + .) 0 $
+        Array.map
+          (fun i => 
+            if Array.getD Az i 0 * Array.getD Bz i 0 == Array.getD Cz i 0 
+            then 0 else 1) $
+          Array.iota self.numCons.val
+      res == 0
+  let resComm : Bool := U.commW == commit W.W gen.gens
+  if resEq && resComm then .ok () else .error UnSat
 
 -- `NovaWitness` provide a method for acquiring an `R1CSInstance` and `R1CSWitness` from implementers.
 class NovaWitness (G : Type _) where

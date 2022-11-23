@@ -9,6 +9,7 @@ inductive NamedObject where
 -- `ShapeCS` is a `ConstraintSystem` for creating `R1CSShape`s for a circuit.
 structure ShapeCS (G : Type _) where
   namedObjects : Array (String × NamedObject)
+  constraints : Array (LinearCombination G × LinearCombination G × LinearCombination G × String)
   currentNamespace : Array String
   inputs : Array String
   aux : Array String
