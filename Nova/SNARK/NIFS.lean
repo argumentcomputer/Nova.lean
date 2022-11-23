@@ -19,8 +19,8 @@ def NIFS.prove [Inhabited G] [Mul G] [Add G] [OfNat G 0] [OfNat G 1] [Coe USize 
                (u₁ : RelaxedR1CSInstance G) (w₁ : RelaxedR1CSWitness G)
                (u₂ : R1CSInstance G) (w₂ : R1CSWitness G) : 
                Except Error (NIFS G × RelaxedR1CSInstance G × RelaxedR1CSWitness G) := do
-  let (t, comm_T) ← R1CSGens.commit_T s gen u₁ w₁ u₂ w₂
+  let (t, commT) ← R1CSGens.commitT s gen u₁ w₁ u₂ w₂
   let r : G := ROCircuitClass.squeeze NUM_CHALLENGE_BITS
-  let u ← R1CSInstance.fold u₁ u₂ comm_T r
+  let u ← R1CSInstance.fold u₁ u₂ commT r
   let w ← R1CSWitness.fold w₁ w₂ t r
-  .ok (NIFS.mk (compress comm_T) default, u, w)
+  .ok (NIFS.mk (compress commT) default, u, w)

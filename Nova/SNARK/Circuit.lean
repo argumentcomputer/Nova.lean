@@ -38,4 +38,4 @@ structure NovaAugmentedCircuitInputs (G : Type _) where
 structure NovaAugmentedCircuit (G : Type _) where
   params : NovaAugmentedCircuitParams
   inputs : Option (NovaAugmentedCircuitInputs G)
-  step_circuit : StepCircuit G
+  stepCircuit : StepCircuit G

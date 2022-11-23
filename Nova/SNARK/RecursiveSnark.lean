@@ -9,20 +9,20 @@ namespace RecursiveSnark
 
 structure RecursiveSnark 
   (G₁ : Type _) (G₂ : Type _) where
-  r_W_primary : RelaxedR1CSWitness G₁
-  r_U_primary : RelaxedR1CSInstance G₁
-  l_w_primary : R1CSWitness G₁
-  l_u_primary : R1CSInstance G₁
-  r_W_secondary: RelaxedR1CSWitness G₂
-  r_U_secondary: RelaxedR1CSInstance G₂
-  l_w_secondary : R1CSWitness G₂
-  l_u_secondary : R1CSInstance G₂
+  rwPrimary : RelaxedR1CSWitness G₁
+  ruPrimary : RelaxedR1CSInstance G₁
+  lwPrimary : R1CSWitness G₁
+  luPrimary : R1CSInstance G₁
+  rwSecondary : RelaxedR1CSWitness G₂
+  ruSecondary : RelaxedR1CSInstance G₂
+  lwSecondary : R1CSWitness G₂
+  luSecondary : R1CSInstance G₂
   i : USize
-  zi_primary : Array G₁
-  zi_secondary : Array G₂
+  ziPrimary : Array G₁
+  ziSecondary : Array G₂
 
 -- required constraints for Recursive-snark related function
-variable {G₁ G₂ : Type _} [c_primary : StepCircuit G₁] [c_secondary : StepCircuit G₂]
+variable {G₁ G₂ : Type _} [cPrimary : StepCircuit G₁] [cSecondary : StepCircuit G₂]
 variable [OfNat G₁ 0] [OfNat G₁ 1] [OfNat G₂ 1] [wit : NovaWitness G₁] [wit' : NovaWitness G₂] [OfNat G₂ 0]
 variable [Coe USize G₁] [Coe USize G₂] 
 variable [Inhabited G₂] [Inhabited G₁] [Mul G₂] [Add G₂] [Sub G₂] [Sub G₁]
@@ -30,101 +30,104 @@ variable [ROCircuitClass G₂] [Mul G₁] [Add G₁] [ROCircuitClass G₁]
 
 -- Create a new `RecursiveSNARK` (or updates the provided `RecursiveSNARK`)
 -- by executing a step of the incremental computation
-def proof_step
+def proofStep
   (pp : PublicParams G₁ G₂)
-  (recursive_snark : Option (RecursiveSnark G₁ G₂))
-  (z₀_primary : Array G₁)
-  (z₀_secondary : Array G₂) : Except Error (RecursiveSnark G₁ G₂) := do
-  if z₀_primary.size != pp.F_arity_primary.val || z₀_secondary.size != pp.F_arity_secondary.val
+  (recursiveSNARK : Option (RecursiveSnark G₁ G₂))
+  (z₀Primary : Array G₁)
+  (z₀Secondary : Array G₂) : Except Error (RecursiveSnark G₁ G₂) := do
+  if z₀Primary.size != pp.FArityPrimary.val || z₀Secondary.size != pp.FAritySecondary.val
   then .error Error.InvalidInitialInputLength
-    match recursive_snark with
+    match recursiveSNARK with
       | .none =>
       -- base case for the primary
-      let cs_primary : SatisfyingAssignment G₁ := newSatisfyingAssignment
+      let csPrimary : SatisfyingAssignment G₁ := newSatisfyingAssignment
       -- TODO: rewrite inputs_primary properly in further PRs
-      let inputs_primary : NovaAugmentedCircuitInputs G₁ :=
+      let inputsPrimary : NovaAugmentedCircuitInputs G₁ :=
         NovaAugmentedCircuitInputs.mk 
-          pp.r1cs_shape_primary.digest 
+          pp.R1CSShapePrimary.digest 
           0 
-          z₀_primary
+          z₀Primary
           .none 
           .none 
           .none 
           .none
-      let circuit_primary : NovaAugmentedCircuit G₁ :=
-        NovaAugmentedCircuit.mk pp.augmented_circuit_params_primary (.some inputs_primary) c_primary
-      let (u_primary, w_primary) ← wit.r1cs_instance_and_witness pp.r1cs_shape_primary pp.r1cs_gens_primary
+      let circuitPrimary : NovaAugmentedCircuit G₁ :=
+        NovaAugmentedCircuit.mk pp.AugmentedCircuitParamsPrimary (.some inputsPrimary) cPrimary
+      let (uPrimary, wPrimary) ← wit.R1CSInstanceAndWitness pp.R1CSShapePrimary pp.R1CSGensPrimary
       
       -- base case for the secondary
-      let cs_secondary : SatisfyingAssignment G₁ := newSatisfyingAssignment
+      let csSecondary : SatisfyingAssignment G₁ := newSatisfyingAssignment
       -- TODO: rewrite inputs_secondary properly in further PRs
-      let inputs_secondary :=
+      let inputsSecondary :=
         NovaAugmentedCircuitInputs.mk 
-          pp.r1cs_shape_primary.digest 
+          pp.R1CSShapePrimary.digest 
           (0 : G₁)
-          z₀_primary
+          z₀Primary
           .none
           .none
-          (.some u_primary)
+          (.some uPrimary)
           .none
-      let circuit_secondary : NovaAugmentedCircuit G₁ := 
-        NovaAugmentedCircuit.mk pp.augmented_circuit_params_secondary (.some inputs_secondary) c_primary
-      let (u_secondary, w_secondary) ← wit'.r1cs_instance_and_witness pp.r1cs_shape_secondary pp.r1cs_gens_secondary
-      let r_W_primary := from_r1cs_witness pp.r1cs_shape_primary w_primary
-      let r_U_primary := from_r1cs_instance pp.r1cs_gens_primary u_primary
-      let r_W_secondary := default_relaxed_r1cs_witness pp.r1cs_shape_secondary
-      let r_U_secondary := default_relaxed_r1cs_instance pp.r1cs_shape_secondary
-      let zi_primary := c_primary.output z₀_primary
-      let zi_secondary := c_secondary.output z₀_secondary
-      if z₀_primary.size != pp.F_arity_primary.val || z₀_secondary.size != pp.F_arity_secondary.val
+      let circuitSecondary : NovaAugmentedCircuit G₁ := 
+        NovaAugmentedCircuit.mk pp.AugmentedCircuitParamsSecondary (.some inputsSecondary) cPrimary
+      let (uSecondary, wSecondary) ← wit'.R1CSInstanceAndWitness pp.R1CSShapeSecondary pp.R1CSGensSecondary
+      let rwPrimary := fromR1CSWitness pp.R1CSShapePrimary wPrimary
+      let ruPrimary := fromR1CSInstance pp.R1CSGensPrimary uPrimary
+      let rwSecondary := defaultRelaxedR1CSWitness pp.R1CSShapeSecondary
+      let ruSecondary := defaultRelaxedR1CSInstance pp.R1CSShapeSecondary
+      let zᵢPrimary := cPrimary.output z₀Primary
+      let zᵢSecondary := cSecondary.output z₀Secondary
+      if z₀Primary.size != pp.FArityPrimary.val || z₀Secondary.size != pp.FAritySecondary.val
       then .error Error.InvalidStepOutputLength
       else
       .ok $ RecursiveSnark.mk
-                r_W_primary 
-                r_U_primary 
-                w_primary 
-                u_primary 
-                r_W_secondary 
-                r_U_secondary 
-                w_secondary
-                u_secondary
+                rwPrimary 
+                ruPrimary 
+                wPrimary 
+                uPrimary 
+                rwSecondary 
+                ruSecondary 
+                wSecondary
+                uSecondary
                 1
-                zi_primary
-                zi_secondary
-      | .some r_snark => do
-      let (l_u_primary, l_w_primary) ← wit.r1cs_instance_and_witness pp.r1cs_shape_primary pp.r1cs_gens_primary
-      let zi_primary := c_primary.output z₀_primary
-      let zi_secondary := c_secondary.output z₀_secondary
-      let (l_u_secondary, l_w_secondary) ← wit'.r1cs_instance_and_witness pp.r1cs_shape_secondary pp.r1cs_gens_secondary
-      let (_, r_U_secondary, r_W_secondary) ← 
+                zᵢPrimary
+                zᵢSecondary
+      | .some rSNARK => do
+      let (luPrimary, lwPrimary) ← wit.R1CSInstanceAndWitness pp.R1CSShapePrimary pp.R1CSGensPrimary
+      let zᵢPrimary := cPrimary.output z₀Primary
+      let zᵢSecondary := cSecondary.output z₀Secondary
+      let (luSecondary, lwSecondary) ← 
+        wit'.R1CSInstanceAndWitness
+          pp.R1CSShapeSecondary
+          pp.R1CSGensSecondary
+      let (_, ruSecondary, rwSecondary) ← 
         NIFS.prove
-          pp.r1cs_gens_secondary
-          pp.r1cs_shape_secondary
-          r_snark.r_U_secondary
-          r_snark.r_W_secondary
-          r_snark.l_u_secondary
-          r_snark.l_w_secondary
+          pp.R1CSGensSecondary
+          pp.R1CSShapeSecondary
+          rSNARK.ruSecondary
+          rSNARK.rwSecondary
+          rSNARK.luSecondary
+          rSNARK.lwSecondary
       
-      let (_, r_U_primary, r_W_primary) ←
+      let (_, ruPrimary, rwPrimary) ←
         NIFS.prove
-          pp.r1cs_gens_primary
-          pp.r1cs_shape_primary
-          r_snark.r_U_primary
-          r_snark.r_W_primary
-          l_u_primary
-          l_w_primary
+          pp.R1CSGensPrimary
+          pp.R1CSShapePrimary
+          rSNARK.ruPrimary
+          rSNARK.rwPrimary
+          luPrimary
+          lwPrimary
       .ok $ RecursiveSnark.mk 
-                 r_W_primary
-                 r_U_primary
-                 l_w_primary
-                 l_u_primary
-                 r_W_secondary
-                 r_U_secondary
-                 l_w_secondary
-                 l_u_secondary
-                 (r_snark.i + 1)
-                 zi_primary
-                 zi_secondary
+                 rwPrimary
+                 ruPrimary
+                 lwPrimary
+                 luPrimary
+                 rwSecondary
+                 ruSecondary
+                 lwSecondary
+                 luSecondary
+                 (rSNARK.i + 1)
+                 zᵢPrimary
+                 zᵢSecondary
 
 -- Verify the correctness of the `RecursiveSNARK`
 /-
