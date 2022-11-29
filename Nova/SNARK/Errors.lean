@@ -28,6 +28,12 @@ inductive Error : Type where
   -- length differs from a previously declared arity
   | InvalidStepOutputLength
 
+open Error in
+def isError (act : Except Error A) : Bool :=
+  match act with
+    | .error _ => true
+    | _        => false
+
 inductive SynthesisError : Type where
   | AssignmentMissing : SynthesisError
   | DivisionByZero : SynthesisError

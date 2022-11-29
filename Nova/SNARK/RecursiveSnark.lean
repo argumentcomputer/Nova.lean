@@ -5,8 +5,6 @@ import Nova.SNARK.PublicParams
 import Nova.SNARK.R1CS
 import Nova.SNARK.Circuit
 
-namespace RecursiveSnark
-
 structure RecursiveSnark 
   (G₁ : Type _) (G₂ : Type _) where
   rwPrimary : RelaxedR1CSWitness G₁
@@ -23,10 +21,14 @@ structure RecursiveSnark
 
 -- required constraints for Recursive-snark related function
 variable {G₁ G₂ : Type _} [cPrimary : StepCircuit G₁] [cSecondary : StepCircuit G₂]
-variable [OfNat G₁ 0] [OfNat G₁ 1] [OfNat G₂ 1] [wit : NovaWitness G₁] [wit' : NovaWitness G₂] [OfNat G₂ 0]
+variable [OfNat G₁ (nat_lit 0)] [OfNat G₁ (nat_lit 1)] [OfNat G₂ (nat_lit 1)] [OfNat G₂ (nat_lit 0)]
+variable [wit : NovaWitness G₁] [wit' : NovaWitness G₂]
 variable [Coe USize G₁] [Coe USize G₂] 
 variable [Inhabited G₂] [Inhabited G₁] [Mul G₂] [Add G₂] [Sub G₂] [Sub G₁]
 variable [ROCircuitClass G₂] [Mul G₁] [Add G₁] [ROCircuitClass G₁]
+variable [BEq G₁] [HPow G₁ G₁ G₁] [BEq G₂] [HPow G₂ G₂ G₂]
+
+open Error
 
 -- Create a new `RecursiveSNARK` (or updates the provided `RecursiveSNARK`)
 -- by executing a step of the incremental computation
@@ -129,22 +131,57 @@ def proofStep
                  zᵢPrimary
                  zᵢSecondary
 
--- Verify the correctness of the `RecursiveSNARK`
 /-
-TODO: complete this function in a further PR
-def verify 
+-- Verify the correctness of the `RecursiveSNARK`
+def verify
   (self : RecursiveSnark G₁ G₂) (pp : PublicParams G₁ G₂)
-  (num_steps : USize) (z₀_primary : Array G₁) 
-  (z₀_secondary : Array G₂) : Except Error (Array G₁ × Array G₂)
+  (numSteps : USize) (z₀Primary : Array G₁) 
+  (z₀Secondary : Array G₂) : Except Error (Array G₁ × Array G₂)
   :=
   let bad_cases :=
-    num_steps == 0 || self.i != num_steps ||
-    self.l_u_primary.X.size != 2 ||
-    self.l_u_secondary.X.size != 2 || 
-    self.r_U_primary.X.size != 2 ||
-    self.r_U_secondary.X.size != 2
+  -- number of steps cannot be zero
+    numSteps == 0 ||
+  -- check if the provided proof has executed numSteps
+    self.i != numSteps ||
+  -- check if the (relaxed) R1CS instances have two public outputs
+    self.luPrimary.X.size != 2 ||
+    self.luSecondary.X.size != 2 || 
+    self.ruPrimary.X.size != 2 ||
+    self.ruSecondary.X.size != 2
   if bad_cases 
-  then .left Error.ProofVerifyError
-  else sorry
+  then .error ProofVerifyError
+  else do
+  -- check if the output hashes in R1CS instances point to the right running instances
+  -- TODO
+    let mut hasher :=
+      NUM_FE_WITHOUT_IO_FOR_CRHF + 2 * pp.FArityPrimary
+    let mut hasher2 :=
+      NUM_FE_WITHOUT_IO_FOR_CRHF + 2 * pp.FAritySecondary
+    for e in z₀Primary do
+      sorry
+    for e in self.ziPrimary do
+      sorry
+  -- check the satisfiability of the provided instances
+    isSatRelaxed
+      pp.R1CSShapePrimary
+      pp.R1CSGensPrimary
+      self.ruPrimary
+      self.rwPrimary
+    isSat
+      pp.R1CSShapePrimary
+      pp.R1CSGensPrimary
+      self.luPrimary
+      self.lwPrimary
+    isSatRelaxed
+      pp.R1CSShapeSecondary
+      pp.R1CSGensSecondary
+      self.ruSecondary
+      self.rwSecondary
+    isSat
+      pp.R1CSShapeSecondary
+      pp.R1CSGensSecondary
+      self.luSecondary
+      self.lwSecondary
+  
+    pure (self.ziPrimary, self.ziSecondary)
 -/
-end RecursiveSnark
