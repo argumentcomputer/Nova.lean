@@ -1,4 +1,5 @@
--- Errors returned by Nova
+/-- Errors returned by Nova
+-/
 inductive Error : Type where
   -- returned if the supplied row or col in (row,col,val) tuple is out of range
   | InvalidIndex

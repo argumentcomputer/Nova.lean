@@ -4,7 +4,8 @@ import Nova.SNARK.Constraints
 import Nova.SNARK.ShapeCS
 import Nova.SNARK.R1CS
 
--- A type that holds public parameters of Nova
+/-- A type that holds public parameters of Nova
+-/
 structure PublicParams (G₁ : Type _) (G₂ : Type _) where
   FArityPrimary : USize
   FAritySecondary : USize
@@ -26,8 +27,10 @@ variable {G₁ G₂ : Type _}
 variable [cPrimary : StepCircuit G₁] [cSecondary : StepCircuit G₂]
 variable [s₁ : NovaShape G₁] [s₂ : NovaShape G₂]
 
--- Create a new `PublicParams`
 open NovaShape in
+/--
+Create a new `PublicParams`
+-/
 def setup : PublicParams G₁ G₂ :=
   let FArityPrimary : USize := cPrimary.arity
   let FAritySecondary : USize := cSecondary.arity

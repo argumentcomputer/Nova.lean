@@ -4,7 +4,9 @@ import Nova.SNARK.R1CS
 
 namespace CompressedSnark
 
--- A SNARK that proves the knowledge of a valid `RecursiveSNARK`
+/--
+A SNARK that proves the knowledge of a valid `RecursiveSNARK`
+-/
 structure CompressedSnark 
   (G₁ : Type _) (G₂ : Type _) 
   (S₁ : Type _) (S₂ : Type _) where

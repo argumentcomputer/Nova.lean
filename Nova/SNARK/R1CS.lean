@@ -9,11 +9,14 @@ import YatimaStdLib.USize
 open Error
 open Except
 
--- Public parameters for a given R1CS
+/-- Public parameters for a given R1CS
+-/
 structure R1CSGens (G : Type _) where
   gens : CommitGens G
 
--- A type that holds the shape of the R1CS matrices
+/--
+A type that holds the shape of the R1CS matrices
+-/
 structure R1CSShape (G : Type _) where
   numCons : USize
   numVars : USize
@@ -32,15 +35,17 @@ structure R1CSShapeSerialised where
   B : Array (USize × USize × Array U8)
   C : Array (USize × USize × Array U8)
 
-def compute_digest
-  (numCons : USize) (num_vars : USize) (num_io : USize)
+def computeDigest [Inhabited G]
+  (numCons : USize) (numVars : USize) (numIO : USize)
   (A : Array (USize × USize × G))
   (B : Array (USize × USize × G))
-  (C : Array (USize × USize × G)) : G := sorry
+  (C : Array (USize × USize × G)) : G :=
+  panic! "sorry mate, I need some serialisation, cheers"
 
--- Create an object of type `R1CSShape` from the explicitly specified R1CS matrices
 open Monad in
-def R1CSShape.new [OfNat G (nat_lit 0)]
+/-- Create an object of type `R1CSShape` from the explicitly specified R1CS matrices
+-/
+def R1CSShape.new [OfNat G (nat_lit 0)] [Inhabited G]
   (numCons : USize) (numVars : USize) (numIO : USize)
   (A : Array (USize × USize × G))
   (B : Array (USize × USize × G))
@@ -65,9 +70,10 @@ def R1CSShape.new [OfNat G (nat_lit 0)]
   let shape := R1CSShape.mk numCons numVars numIO A B C digest
   .ok shape
 
--- Pads the R1CSShape so that the number of variables is a power of two
--- Renumbers variables to accomodate padded variables
-def R1CSShape.pad (self : R1CSShape G) : R1CSShape G :=
+/-- Pads the R1CSShape so that the number of variables is a power of two.
+Renumbers variables to accomodate padded variables
+-/
+def R1CSShape.pad (self : R1CSShape G) [Inhabited G] : R1CSShape G :=
   match (self.numVars.nextPowerOfTwo == self.numVars, 
         self.numCons.nextPowerOfTwo == self.numCons) with
     -- check if the provided R1CSShape is already as required
@@ -124,19 +130,22 @@ structure R1CSWitness (G : Type _) where
   W : Array G
   deriving BEq
 
--- A type that holds an R1CS instance
+/-- A type that holds an R1CS instance
+-/
 structure R1CSInstance (G : Type _) where
   commW : Commitment G
   X : Array G
   deriving BEq
 
--- A type that holds a witness for a given Relaxed R1CS instance
+/-- A type that holds a witness for a given Relaxed R1CS instance
+-/
 structure RelaxedR1CSWitness (G : Type _) where
   W : Array G
   E : Array G
   deriving BEq
 
--- A type that holds a Relaxed R1CS instance
+/-- A type that holds a Relaxed R1CS instance
+-/
 structure RelaxedR1CSInstance (G : Type _) where
   commW : Commitment G
   commE : Commitment G
@@ -144,41 +153,49 @@ structure RelaxedR1CSInstance (G : Type _) where
   u : G
   deriving BEq
 
--- Returns the number of constraints in the primary and secondary circuits
+/-- Returns the number of constraints in the primary and secondary circuits
+-/
 def numConstraints (shape₁ : R1CSShape G₁) (shape₂ : R1CSShape G₂) : USize × USize :=
   (shape₁.numCons, shape₂.numCons)
 
--- Returns the number of variables in the primary and secondary circuits
+/-- Returns the number of variables in the primary and secondary circuits
+-/
 def numVariables (shape₁ : R1CSShape G₁) (shape₂ : R1CSShape G₂) : USize × USize :=
   (shape₁.numVars, shape₂.numVars)
 
--- Initialises a new RelaxedR1CSInstance from an R1CSInstance
+/-- Initialises a new RelaxedR1CSInstance from an R1CSInstance
+-/
 def fromR1CSInstance [OfNat G (nat_lit 1)] (gen : R1CSGens G)
                        (inst : R1CSInstance G) : RelaxedR1CSInstance G :=
   RelaxedR1CSInstance.mk inst.commW (Commitment.mk gen.gens._p) inst.X (1 : G)
 
 variable [OfNat G (nat_lit 0)] [Coe USize G]
 
--- Initialises a new RelaxedR1CSWitness from an R1CSWitness
+/-- Initialises a new RelaxedR1CSWitness from an `R1CSWitness`
+-/
 def fromR1CSWitness (S : R1CSShape G) (witness : R1CSWitness G)  : RelaxedR1CSWitness G :=
   RelaxedR1CSWitness.mk witness.W #[0, S.numCons]
 
--- Produces a default RelaxedR1CSWitness given an R1CSShape
+/-- Produces a default RelaxedR1CSWitness given an `R1CSShape`
+-/
 def defaultRelaxedR1CSWitness (s : R1CSShape G) : RelaxedR1CSWitness G :=
   RelaxedR1CSWitness.mk #[0, s.numVars] #[0, s.numCons]
 
--- Produces a default RelaxedR1CSInstance given R1CSGens and R1CSShape
+/-- Produces a default RelaxedR1CSInstance given `R1CSGens` and `R1CSShape`
+-/
 def defaultRelaxedR1CSInstance (s : R1CSShape G) : RelaxedR1CSInstance G :=
   RelaxedR1CSInstance.mk (Commitment.mk 0) (Commitment.mk 0) #[0, s.numIO] 0
 
--- `NovaShape` provides methods for acquiring `R1CSShape` and `R1CSGens` from implementers.
+/-- `NovaShape` provides methods for acquiring `R1CSShape` and `R1CSGens` from implementers.
+-/
 class NovaShape (G : Type _) where
 -- Return an appropriate `R1CSShape` struct
   R1CSShape : ShapeCS G → R1CSShape G
 -- Return an appropriate `R1CSGens` struct
   R1CSGens : ShapeCS G → R1CSGens G
 
--- Folds an incoming R1CSWitness into the current one
+/-- Folds an incoming R1CSWitness into the current one
+-/
 def R1CSWitness.fold [Mul G] [Add G] 
     (w₁ : RelaxedR1CSWitness G) 
     (w₂ : R1CSWitness G) 
@@ -191,7 +208,8 @@ def R1CSWitness.fold [Mul G] [Add G]
       let e := Array.map (fun (a, b) => a + b * r) (Array.zip e₁ t)
       .ok $ RelaxedR1CSWitness.mk w e
 
--- Folds an incoming RelaxedR1CSInstance into the current one
+/-- Folds an incoming RelaxedR1CSInstance into the current one
+-/
 def R1CSInstance.fold {G : Type _} [Mul G] [Add G]
   (u₁ : RelaxedR1CSInstance G) 
   (u₂ : R1CSInstance G) 
@@ -302,7 +320,8 @@ def isSatRelaxed [Mul G] [Add G] [BEq G] [HPow G G G]
     else .error InvalidInitialInputLength
 
 
--- Checks if the R1CS instance is satisfiable given a witness and its shape
+/-- Checks if the R1CS instance is satisfiable given a witness and its shape
+-/
 def isSat [Mul G] [Add G] [OfNat G (nat_lit 1)] [OfNat G (nat_lit 0)] [BEq G] [HPow G G G]
   (self : R1CSShape G) (gen : R1CSGens G)
   (U : R1CSInstance G) (W : R1CSWitness G) : Except Error Unit := do
@@ -331,7 +350,8 @@ def isSat [Mul G] [Add G] [OfNat G (nat_lit 1)] [OfNat G (nat_lit 0)] [BEq G] [H
   let resComm : Bool := U.commW == commit W.W gen.gens
   if resEq && resComm then .ok () else .error UnSat
 
--- `NovaWitness` provide a method for acquiring an `R1CSInstance` and `R1CSWitness` from implementers.
+/-- `NovaWitness` provide a method for acquiring an `R1CSInstance` and `R1CSWitness` from implementers.
+-/
 class NovaWitness (G : Type _) where
   R1CSInstanceAndWitness 
     : R1CSShape G 

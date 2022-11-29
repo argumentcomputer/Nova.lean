@@ -2,11 +2,13 @@ import Nova.SNARK.Commitments
 import Nova.SNARK.Errors
 import Nova.SNARK.R1CS
 
--- A helper trait for a step of the incremental computation (i.e., circuit for F)
+/--
+A helper trait for a step of the incremental computation (i.e., circuit for F)
+-/
 class StepCircuit (F : Type _) where
 -- Return the the number of inputs or outputs of each step
 -- (this method is called only at circuit synthesis time)
--- synthesize and output methods are expected to take as
+-- synthesise and output methods are expected to take as
 -- input a vector of size equal to arity and output a vector of size equal to arity  
   arity : USize
 -- Sythesize the circuit for a computation step and return variable
@@ -33,8 +35,10 @@ structure NovaAugmentedCircuitInputs (G : Type _) where
   u : Option (R1CSInstance G)
   T : Option (Commitment G)
 
--- The augmented circuit F' in Nova that includes a step circuit F
--- and the circuit for the verifier in Nova's non-interactive folding scheme
+/--
+The augmented circuit F' in Nova that includes a step circuit `G`
+and the circuit for the verifier in Nova's non-interactive folding scheme
+-/
 structure NovaAugmentedCircuit (G : Type _) where
   params : NovaAugmentedCircuitParams
   inputs : Option (NovaAugmentedCircuitInputs G)
