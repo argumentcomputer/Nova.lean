@@ -131,6 +131,7 @@ def proofStep
                  zᵢPrimary
                  zᵢSecondary
 
+/-
 -- Verify the correctness of the `RecursiveSNARK`
 def verify
   (self : RecursiveSnark G₁ G₂) (pp : PublicParams G₁ G₂)
@@ -183,3 +184,4 @@ def verify
       self.lwSecondary
   
     pure (self.ziPrimary, self.ziSecondary)
+-/
