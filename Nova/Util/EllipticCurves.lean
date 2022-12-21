@@ -1,4 +1,4 @@
-import Nova.Util.GaloisField
+import YatimaStdLib.GaloisField
 
 open GaloisField
 
