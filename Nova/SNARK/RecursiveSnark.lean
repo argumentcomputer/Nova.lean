@@ -21,10 +21,8 @@ structure RecursiveSnark
 
 -- required constraints for Recursive-snark related function
 variable {G₁ G₂ : Type _} [Ring G₁] [Ring G₂] [cPrimary : StepCircuit G₁] [cSecondary : StepCircuit G₂]
-variable [Coe Nat G₁] [Coe Nat G₂]
 variable [BEq G₁] [BEq G₂]
 variable [wit : NovaWitness G₁] [wit' : NovaWitness G₂]
-variable [Coe USize G₁] [Coe USize G₂] 
 variable [Inhabited G₂] [Inhabited G₁]
 variable [ROCircuitClass G₂] [ROCircuitClass G₁]
 variable [HPow G₁ G₁ G₁][HPow G₂ G₂ G₂]
