@@ -1,4 +1,5 @@
 import YatimaStdLib.Bit
+import YatimaStdLib.Ring
 
 structure DensityTracker where
   bv : Array Bit
@@ -20,8 +21,8 @@ structure SatisfyingAssignment (G : Type _) where
   input_assignment : Array G
   aux_assignment : Array G
 
-def newSatisfyingAssignment [OfNat G 1] : SatisfyingAssignment G :=
-  let input_assignment := #[(1 : G)]
+def newSatisfyingAssignment [Ring G] : SatisfyingAssignment G :=
+  let input_assignment := #[1]
   let d := add_element new_tracker
   SatisfyingAssignment.mk
     new_tracker

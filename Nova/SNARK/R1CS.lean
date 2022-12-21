@@ -163,13 +163,13 @@ def numConstraints (shape₁ : R1CSShape G₁) (shape₂ : R1CSShape G₂) : Nat
 def numVariables (shape₁ : R1CSShape G₁) (shape₂ : R1CSShape G₂) : Nat × Nat :=
   (shape₁.numVars, shape₂.numVars)
 
+variable {G : Type _} [Ring G] [BEq G] [OfNat G (nat_lit 1)] [Coe Nat G]
+
 /-- Initialises a new RelaxedR1CSInstance from an R1CSInstance
 -/
-def fromR1CSInstance [OfNat G (nat_lit 1)] (gen : R1CSGens G)
+def fromR1CSInstance (gen : R1CSGens G)
                        (inst : R1CSInstance G) : RelaxedR1CSInstance G :=
-  RelaxedR1CSInstance.mk inst.commW (Commitment.mk gen.gens._p) inst.X (1 : G)
-
-variable {G : Type} [OfNat G (nat_lit 0)] [Coe Nat G]
+  RelaxedR1CSInstance.mk inst.commW (Commitment.mk gen.gens._p) inst.X 1
 
 /-- Initialises a new RelaxedR1CSWitness from an `R1CSWitness`
 -/
@@ -193,8 +193,6 @@ class NovaShape (G : Type _) where
   R1CSShape : ShapeCS G → R1CSShape G
 -- Return an appropriate `R1CSGens` struct
   R1CSGens : ShapeCS G → R1CSGens G
-
-variable [Ring G] [BEq G] [OfNat G (nat_lit 1)]
 
 /-- Folds an incoming R1CSWitness into the current one
 -/
