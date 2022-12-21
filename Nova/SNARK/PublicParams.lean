@@ -25,7 +25,7 @@ structure PublicParams (G₁ : Type _) (G₂ : Type _) where
 
 variable {G₁ G₂ : Type _} 
 variable [cPrimary : StepCircuit G₁] [cSecondary : StepCircuit G₂]
-variable [s₁ : NovaShape G₁] [s₂ : NovaShape G₂]
+variable [s₁ : NovaShape G₁] [s₂ : NovaShape G₂] [Inhabited G₁] [Inhabited G₂]
 
 open NovaShape in
 /--
