@@ -20,13 +20,15 @@ structure RecursiveSnark
   ziSecondary : Array G₂
 
 -- required constraints for Recursive-snark related function
-variable {G₁ G₂ : Type _} [cPrimary : StepCircuit G₁] [cSecondary : StepCircuit G₂]
+variable {G₁ G₂ : Type _} [Ring G₁] [Ring G₂] [cPrimary : StepCircuit G₁] [cSecondary : StepCircuit G₂]
 variable [OfNat G₁ (nat_lit 0)] [OfNat G₁ (nat_lit 1)] [OfNat G₂ (nat_lit 1)] [OfNat G₂ (nat_lit 0)]
+variable [Coe Nat G₁] [Coe Nat G₂]
+variable [BEq G₁] [BEq G₂]
 variable [wit : NovaWitness G₁] [wit' : NovaWitness G₂]
 variable [Coe USize G₁] [Coe USize G₂] 
-variable [Inhabited G₂] [Inhabited G₁] [Mul G₂] [Add G₂] [Sub G₂] [Sub G₁]
-variable [ROCircuitClass G₂] [Mul G₁] [Add G₁] [ROCircuitClass G₁]
-variable [BEq G₁] [HPow G₁ G₁ G₁] [BEq G₂] [HPow G₂ G₂ G₂]
+variable [Inhabited G₂] [Inhabited G₁]
+variable [ROCircuitClass G₂] [ROCircuitClass G₁]
+variable [HPow G₁ G₁ G₁][HPow G₂ G₂ G₂]
 
 open Error
 
