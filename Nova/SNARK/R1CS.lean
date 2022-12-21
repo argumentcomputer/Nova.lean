@@ -48,7 +48,7 @@ def computeDigest [Inhabited G]
 open Monad in
 /-- Create an object of type `R1CSShape` from the explicitly specified R1CS matrices
 -/
-def R1CSShape.new [OfNat G (nat_lit 0)] [Inhabited G]
+def R1CSShape.new [Inhabited G]
   (numCons : Nat) (numVars : Nat) (numIO : Nat)
   (A : SparseMatrix G)
   (B : SparseMatrix G)
@@ -163,7 +163,7 @@ def numConstraints (shape₁ : R1CSShape G₁) (shape₂ : R1CSShape G₂) : Nat
 def numVariables (shape₁ : R1CSShape G₁) (shape₂ : R1CSShape G₂) : Nat × Nat :=
   (shape₁.numVars, shape₂.numVars)
 
-variable {G : Type _} [Ring G] [BEq G] [OfNat G (nat_lit 1)] [Coe Nat G]
+variable {G : Type _} [Ring G] [BEq G]
 
 /-- Initialises a new RelaxedR1CSInstance from an R1CSInstance
 -/
@@ -275,7 +275,7 @@ def R1CSGens.commitT
   -- TODO: complete this sorry in a further PR
 
 -- Checks if the Relaxed R1CS instance is satisfiable given a witness and its shape
-def isSatRelaxed [Mul G] [Add G] [BEq G] [HPow G G G]
+def isSatRelaxed [HPow G G G]
   (self : R1CSShape G) (gen : R1CSGens G)
   (U : RelaxedR1CSInstance G) (W : RelaxedR1CSWitness G) : Except Error Unit := do
   let z := Array.toSparse $ Array.join #[W.W, #[U.u], U.X]
@@ -312,7 +312,7 @@ def isSatRelaxed [Mul G] [Add G] [BEq G] [HPow G G G]
 
 /-- Checks if the R1CS instance is satisfiable given a witness and its shape
 -/
-def isSat [BEq G] [HPow G G G]
+def isSat [HPow G G G]
   (self : R1CSShape G) (gen : R1CSGens G)
   (U : R1CSInstance G) (W : R1CSWitness G) : Except Error Unit := do
   let z := Array.toSparse $ Array.join #[W.W, #[1], U.X]
