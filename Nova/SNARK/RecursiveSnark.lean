@@ -1,4 +1,4 @@
-import Nova.BellPerson.Solver
+import BellaNova.Solver
 import Nova.SNARK.Errors
 import Nova.SNARK.NIFS
 import Nova.SNARK.PublicParams
