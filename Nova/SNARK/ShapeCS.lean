@@ -1,5 +1,4 @@
-import Nova.BellPerson.Index
-import Nova.BellPerson.LinearCombination
+import BellaNova.LinearCombination
 
 inductive NamedObject where
   | Constraint : USize → NamedObject
