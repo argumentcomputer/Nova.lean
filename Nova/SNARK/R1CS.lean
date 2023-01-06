@@ -106,9 +106,9 @@ def R1CSShape.pad (self : R1CSShape G) [Inhabited G] : R1CSShape G :=
             )
           M.rows
           M.cols
-      let A_padded := applyPad self.A
-      let B_padded := applyPad self.B
-      let C_padded := applyPad self.C
+      let aPadded := applyPad self.A
+      let bPadded := applyPad self.B
+      let cPadded := applyPad self.C
       let digest :=
         computeDigest
           numConsPadded
@@ -121,9 +121,9 @@ def R1CSShape.pad (self : R1CSShape G) [Inhabited G] : R1CSShape G :=
         numConsPadded
         numVarsPadded
         self.numIO
-        A_padded
-        B_padded
-        C_padded
+        aPadded
+        bPadded
+        cPadded
         digest
 
 -- A type that holds a witness for a given R1CS instance
@@ -144,6 +144,15 @@ structure RelaxedR1CSWitness (G : Type _) where
   W : Array G
   E : Array G
   deriving BEq
+
+/--
+Pads the provided witness to the correct length
+-/
+def RelaxedR1CSWitness.pad [Ring G]
+  (self : RelaxedR1CSWitness G) (S : R1CSShape G) : RelaxedR1CSWitness G :=
+  let W := self.W ++ #[(0 : G), (S.numVars : G) - (self.W.size : G)]
+  let E := self.E ++ #[(0 : G), (S.numCons : G) - (self.E.size : G)]
+  RelaxedR1CSWitness.mk W E
 
 /-- A type that holds a Relaxed R1CS instance
 -/

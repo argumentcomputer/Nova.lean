@@ -33,7 +33,7 @@ class VerifierKey (G : Type _) where
 /--
 A class that defines the behaviour of a zkSNARK
 -/
-class RelaxedR1CSSNARK (G : Type _) where
+class RelaxedR1CSSNARK (G : Type _) extends ProverKey G, VerifierKey G where
   /--
   Produces a new SNARK for a relaxed `R1CS`
   -/ 
