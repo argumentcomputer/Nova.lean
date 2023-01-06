@@ -23,4 +23,10 @@ structure CompressedSnark
   znPrimary : Array G₁
   znSecondary : Array G₂
 
+/-
+/--
+Create a new `CompressedSNARK`
+-/
+def CompressedSnark.prove
+-/
 end CompressedSnark

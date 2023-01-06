@@ -31,13 +31,14 @@ structure R1CSShape (G : Type _) where
   digest : G
 
 structure R1CSShapeSerialised where
-  numCons : USize
-  numVars : USize
-  numIO : USize
-  A : SparseMatrix (Array U8)
-  B : SparseMatrix (Array U8)
-  C : SparseMatrix (Array U8)
+  numCons : Nat
+  numVars : Nat
+  numIO : Nat
+  A : SparseMatrix (Array UInt8)
+  B : SparseMatrix (Array UInt8)
+  C : SparseMatrix (Array UInt8)
 
+open Coe in
 def computeDigest [Inhabited G]
   (numCons : Nat) (numVars : Nat) (numIO : Nat)
   (A : SparseMatrix G)
