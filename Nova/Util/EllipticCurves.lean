@@ -1,4 +1,4 @@
-import YatimaStdLib.GaloisField
+import FF.GaloisField
 
 open GaloisField
 
