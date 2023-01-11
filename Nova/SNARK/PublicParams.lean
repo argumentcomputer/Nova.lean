@@ -9,14 +9,9 @@ import Nova.SNARK.R1CS
 structure PublicParams (G₁ : Type _) (G₂ : Type _) where
   FArityPrimary : USize
   FAritySecondary : USize
-  --ro_consts_primary : ROConstants G₁
-  --ro_consts_circuit_primary : ROConstantsCircuit G₂
-  
   R1CSGensPrimary : R1CSGens G₁
   R1CSShapePrimary : R1CSShape G₁
   R1CSShapePaddedPrimary : R1CSShape G₁
-  --ro_consts_secondary : ROConstants G₂
-  --ro_consts_circuit_secondary : ROConstantsCircuit G₁
   R1CSGensSecondary : R1CSGens G₂
   R1CSShapeSecondary  : R1CSShape G₂
   R1CSShapePaddedSecondary : R1CSShape G₂

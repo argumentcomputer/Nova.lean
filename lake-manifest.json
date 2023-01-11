@@ -14,7 +14,7 @@
     "name": "LSpec",
     "inputRev?": "88f7d23e56a061d32c7173cea5befa4b2c248b41"}},
   {"git":
-   {"url": "https://github.com/yatima-inc/FF.lean.git",
+   {"url": "https://github.com/yatima-inc/FF.lean",
     "subDir?": null,
     "rev": "9d86277cf2b291151aa5226d97f8db038a413a0c",
     "name": "FF",
