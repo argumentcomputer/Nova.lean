@@ -7,10 +7,10 @@ package Nova
 lean_lib Nova
 
 require YatimaStdLib from git
-  "https://github.com/yatima-inc/YatimaStdLib.lean" @ "704823e421b333ea9960347e305c60f654618422"
+  "https://github.com/yatima-inc/YatimaStdLib.lean" @ "649368d593f292227ab39b9fd08f6a448770dca8"
 
 require BellaNova from git
-  "https://github.com/yatima-inc/Bellanova.lean" @ "a262858693fe7e6beb4f6aeb828ba41d557c76dc"
+  "https://github.com/yatima-inc/Bellanova.lean" @ "32faf6c111759e7ddda187b07d48c7ca00964a9e"
 
 require FF from git
-  "https://github.com/yatima-inc/FF.lean" @ "9d86277cf2b291151aa5226d97f8db038a413a0c"
+  "https://github.com/yatima-inc/FF.lean" @ "3fa1117d152d9842b74f7b197f0d93fbdb6c32f2"

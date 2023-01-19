@@ -4,9 +4,9 @@
  [{"git":
    {"url": "https://github.com/yatima-inc/YatimaStdLib.lean",
     "subDir?": null,
-    "rev": "704823e421b333ea9960347e305c60f654618422",
+    "rev": "649368d593f292227ab39b9fd08f6a448770dca8",
     "name": "YatimaStdLib",
-    "inputRev?": "704823e421b333ea9960347e305c60f654618422"}},
+    "inputRev?": "649368d593f292227ab39b9fd08f6a448770dca8"}},
   {"git":
    {"url": "https://github.com/yatima-inc/lspec/",
     "subDir?": null,
@@ -16,9 +16,9 @@
   {"git":
    {"url": "https://github.com/yatima-inc/FF.lean",
     "subDir?": null,
-    "rev": "9d86277cf2b291151aa5226d97f8db038a413a0c",
+    "rev": "3fa1117d152d9842b74f7b197f0d93fbdb6c32f2",
     "name": "FF",
-    "inputRev?": "9d86277cf2b291151aa5226d97f8db038a413a0c"}},
+    "inputRev?": "3fa1117d152d9842b74f7b197f0d93fbdb6c32f2"}},
   {"git":
    {"url": "https://github.com/leanprover/std4/",
     "subDir?": null,
@@ -28,6 +28,6 @@
   {"git":
    {"url": "https://github.com/yatima-inc/Bellanova.lean",
     "subDir?": null,
-    "rev": "a262858693fe7e6beb4f6aeb828ba41d557c76dc",
+    "rev": "32faf6c111759e7ddda187b07d48c7ca00964a9e",
     "name": "BellaNova",
-    "inputRev?": "a262858693fe7e6beb4f6aeb828ba41d557c76dc"}}]}
+    "inputRev?": "32faf6c111759e7ddda187b07d48c7ca00964a9e"}}]}
