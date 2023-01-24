@@ -24,8 +24,8 @@ structure CompressedSnark
   znSecondary : Array G₂
 
 variable {G₁ G₂ : Type _} [Ring G₁] [Ring G₂]
-variable [Inhabited G₁] [Ring G₁] [BEq G₁] [ROCircuitClass G₁] [RelaxedR1CSSNARK G₁]
-variable [Inhabited G₂] [Ring G₂] [BEq G₂] [ROCircuitClass G₂] [RelaxedR1CSSNARK G₂]
+variable [ROCircuitClass G₁] [RelaxedR1CSSNARK G₁]
+variable [ROCircuitClass G₂] [RelaxedR1CSSNARK G₂]
 
 /--
 Create a new `CompressedSNARK`
