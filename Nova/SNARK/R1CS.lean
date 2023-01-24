@@ -173,7 +173,7 @@ def numConstraints (shape₁ : R1CSShape G₁) (shape₂ : R1CSShape G₂) : Nat
 def numVariables (shape₁ : R1CSShape G₁) (shape₂ : R1CSShape G₂) : Nat × Nat :=
   (shape₁.numVars, shape₂.numVars)
 
-variable {G : Type _} [Ring G] [BEq G]
+variable {G : Type _} [Ring G]
 
 /-- Initialises a new RelaxedR1CSInstance from an R1CSInstance
 -/
