@@ -4,9 +4,9 @@
  [{"git":
    {"url": "https://github.com/yatima-inc/YatimaStdLib.lean",
     "subDir?": null,
-    "rev": "49ee890897dbdd4665d0e8c75cd3401f0b4e6f21",
+    "rev": "533d71efa5853ff014f42c174d6321d74251209f",
     "name": "YatimaStdLib",
-    "inputRev?": "49ee890897dbdd4665d0e8c75cd3401f0b4e6f21"}},
+    "inputRev?": "533d71efa5853ff014f42c174d6321d74251209f"}},
   {"git":
    {"url": "https://github.com/yatima-inc/lspec/",
     "subDir?": null,
@@ -16,9 +16,9 @@
   {"git":
    {"url": "https://github.com/yatima-inc/FF.lean",
     "subDir?": null,
-    "rev": "7ac28e1ab71635bdf1ba092ccedba29636b99016",
+    "rev": "5a9b8eeb9a6438fe6bcfcb84f60329f888e7b95f",
     "name": "FF",
-    "inputRev?": "7ac28e1ab71635bdf1ba092ccedba29636b99016"}},
+    "inputRev?": "5a9b8eeb9a6438fe6bcfcb84f60329f888e7b95f"}},
   {"git":
    {"url": "https://github.com/leanprover/std4/",
     "subDir?": null,
