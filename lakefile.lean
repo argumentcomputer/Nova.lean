@@ -12,5 +12,5 @@ require YatimaStdLib from git
 require BellaNova from git
   "https://github.com/yatima-inc/Bellanova.lean" @ "885f12bfb39620c8130498925ed948533650cbb3"
 
-require FF from git
-  "https://github.com/yatima-inc/FF.lean" @ "5a9b8eeb9a6438fe6bcfcb84f60329f888e7b95f"
+require FFaCiL from git
+  "https://github.com/yatima-inc/FFaCiL.lean" @ "536517c5e8cfca0943281e86b4ab051ddf75c1e1"

@@ -2,6 +2,12 @@
  "packagesDir": "./lake-packages",
  "packages":
  [{"git":
+   {"url": "https://github.com/yatima-inc/FFaCiL.lean",
+    "subDir?": null,
+    "rev": "536517c5e8cfca0943281e86b4ab051ddf75c1e1",
+    "name": "FFaCiL",
+    "inputRev?": "536517c5e8cfca0943281e86b4ab051ddf75c1e1"}},
+  {"git":
    {"url": "https://github.com/yatima-inc/YatimaStdLib.lean",
     "subDir?": null,
     "rev": "533d71efa5853ff014f42c174d6321d74251209f",
@@ -14,11 +20,11 @@
     "name": "LSpec",
     "inputRev?": "88f7d23e56a061d32c7173cea5befa4b2c248b41"}},
   {"git":
-   {"url": "https://github.com/yatima-inc/FF.lean",
+   {"url": "https://github.com/yatima-inc/LightData",
     "subDir?": null,
-    "rev": "5a9b8eeb9a6438fe6bcfcb84f60329f888e7b95f",
-    "name": "FF",
-    "inputRev?": "5a9b8eeb9a6438fe6bcfcb84f60329f888e7b95f"}},
+    "rev": "7492abeae41f3a469396c73e13f48cd2b8da4a02",
+    "name": "LightData",
+    "inputRev?": "7492abeae41f3a469396c73e13f48cd2b8da4a02"}},
   {"git":
    {"url": "https://github.com/leanprover/std4/",
     "subDir?": null,
