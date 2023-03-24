@@ -2,13 +2,13 @@
  "packagesDir": "./lake-packages",
  "packages":
  [{"git":
-   {"url": "https://github.com/yatima-inc/FFaCiL.lean",
+   {"url": "https://github.com/lurk-lab/FFaCiL.lean",
     "subDir?": null,
-    "rev": "536517c5e8cfca0943281e86b4ab051ddf75c1e1",
+    "rev": "9a4c77f8b703b60ae4e353b957e858a2e1de2e83",
     "name": "FFaCiL",
-    "inputRev?": "536517c5e8cfca0943281e86b4ab051ddf75c1e1"}},
+    "inputRev?": "9a4c77f8b703b60ae4e353b957e858a2e1de2e83"}},
   {"git":
-   {"url": "https://github.com/yatima-inc/YatimaStdLib.lean",
+   {"url": "https://github.com/lurk-lab/YatimaStdLib.lean",
     "subDir?": null,
     "rev": "533d71efa5853ff014f42c174d6321d74251209f",
     "name": "YatimaStdLib",
@@ -20,7 +20,7 @@
     "name": "LSpec",
     "inputRev?": "88f7d23e56a061d32c7173cea5befa4b2c248b41"}},
   {"git":
-   {"url": "https://github.com/yatima-inc/LightData",
+   {"url": "https://github.com/lurk-lab/LightData",
     "subDir?": null,
     "rev": "7492abeae41f3a469396c73e13f48cd2b8da4a02",
     "name": "LightData",
@@ -32,7 +32,7 @@
     "name": "std",
     "inputRev?": "fde95b16907bf38ea3f310af406868fc6bcf48d1"}},
   {"git":
-   {"url": "https://github.com/yatima-inc/Bellanova.lean",
+   {"url": "https://github.com/lurk-lab/Bellanova.lean",
     "subDir?": null,
     "rev": "885f12bfb39620c8130498925ed948533650cbb3",
     "name": "BellaNova",
